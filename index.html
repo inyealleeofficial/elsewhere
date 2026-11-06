@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>elsewhere — live windows to the world</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F5F0; --paper2:#EFEEE7; --card:#FFFFFF; --ink:#1C2B24; --ink2:#3E4C45; --muted:#7D867F; --line:#E4E3DB; --line2:#D9D8CF;
+  --green:#1F4A3A; --green2:#2C5E4B; --sage:#E3EAE2; --sage2:#CFDCCF; --accent:#E2673A; --live:#3FA06B;
+  --r:18px; --shadow:0 1px 2px rgba(28,43,36,.04),0 8px 24px -12px rgba(28,43,36,.18);
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;font-size:15px}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.eyebrow{font-size:11px;letter-spacing:2.2px;text-transform:uppercase;font-weight:700;color:var(--green2)}
+
+/* ---------- layout ---------- */
+.shell{display:grid;grid-template-columns:268px 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;border-right:1px solid var(--line);padding:30px 18px 24px;display:flex;flex-direction:column;background:var(--paper)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:27px;letter-spacing:-1px;color:var(--ink);padding:0 6px}
+.logo .mark{width:38px;height:38px;border-radius:50%;background:var(--green);display:grid;place-items:center;color:#fff}
+.logo .mark svg{width:22px;height:22px;stroke:#fff}
+.logo b{color:var(--accent)}
+.side .eyebrow{margin:40px 6px 12px;color:var(--muted)}
+.nav-item{display:flex;align-items:center;gap:12px;width:100%;padding:13px 14px;border-radius:12px;font-weight:600;color:var(--ink2);text-align:left}
+.nav-item:hover{background:var(--paper2)}
+.nav-item.on{background:var(--sage);color:var(--green)}
+.nav-item .n{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600}
+.side hr{border:0;border-top:1px solid var(--line);margin:22px 6px 0}
+.clist{overflow:auto;flex:1;margin:0 -6px;padding:0 6px;scrollbar-width:thin}
+.crow{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border-radius:10px;color:var(--ink2);font-weight:500;font-size:14.5px;text-align:left}
+.crow:hover{background:var(--paper2)}
+.crow.on{background:var(--sage);color:var(--green);font-weight:700}
+.crow code{font-family:inherit;font-size:10px;font-weight:700;color:var(--muted);width:20px}
+.crow .n{margin-left:auto;font-size:12px;color:var(--muted)}
+.side-foot{padding:18px 6px 0;border-top:1px solid var(--line)}
+.side-foot .glob{width:42px;height:42px;color:var(--sage2)}
+.side-foot h4{margin:8px 0 4px;font-size:19px;letter-spacing:-.4px}
+.side-foot p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.5}
+
+.main{min-width:0}
+.topbar{height:64px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 40px;font-size:13.5px;color:var(--ink2)}
+.topbar .tag{display:flex;align-items:center;gap:8px}
+.topbar .tag svg{color:var(--accent);width:15px;height:15px}
+.topbar .online{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--live);display:inline-block;box-shadow:0 0 0 3px rgba(63,160,107,.18)}
+.wrap{max-width:1240px;margin:0 auto;padding:44px 40px 120px}
+
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+.head h1{font-size:44px;line-height:1.05;letter-spacing:-1.8px;margin:12px 0 10px;font-weight:800}
+.head h1 em{font-family:"Instrument Serif",serif;font-weight:400;font-style:italic;letter-spacing:-.5px;color:var(--green2)}
+.head p{margin:0;color:var(--ink2);font-size:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:46px;padding:0 20px;border-radius:12px;font-weight:700;font-size:14.5px;transition:.15s;white-space:nowrap}
+.btn.line{border:1px solid var(--line2);background:var(--card)}
+.btn.line:hover{border-color:var(--ink2)}
+.btn.dark{background:var(--green);color:#fff}
+.btn.dark:hover{background:var(--green2)}
+.btn.white{background:#fff;color:var(--ink)}
+
+/* hero */
+.hero{position:relative;margin-top:30px;border-radius:24px;overflow:hidden;aspect-ratio:2.35/1;min-height:360px;background:#203029;color:#fff;box-shadow:var(--shadow)}
+.hero .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease}
+.hero .slide.on{opacity:1}
+.hero img{width:100%;height:100%;object-fit:cover;transform:scale(1.06);transition:transform 7s ease-out}
+.hero .slide.on img{transform:scale(1)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,24,19,.72) 0%,rgba(14,24,19,.35) 45%,rgba(14,24,19,.05) 75%),linear-gradient(0deg,rgba(14,24,19,.45),transparent 40%);pointer-events:none}
+.hero-txt{position:absolute;z-index:2;left:40px;bottom:40px;right:40%}
+.chip-glass{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:9px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:10.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+.hero .tl{position:absolute;z-index:2;top:30px;left:34px}
+.hero .tr{position:absolute;z-index:2;top:30px;right:30px;letter-spacing:.2px;text-transform:none;font-size:11.5px;font-weight:600}
+.coords{font-size:12px;letter-spacing:3px;opacity:.85;font-weight:600}
+.hero h2{font-size:50px;letter-spacing:-2px;margin:10px 0 8px;line-height:1.02;font-weight:800}
+.hero h2 em{font-family:"Instrument Serif",serif;font-weight:400;font-style:italic;letter-spacing:-.5px}
+.hero p{margin:0 0 22px;font-size:16.5px;opacity:.92}
+.hero .br{position:absolute;z-index:2;right:32px;bottom:30px;text-align:right}
+.hero .count{font-size:22px;font-weight:700}
+.hero .count small{font-size:13px;opacity:.6;font-weight:500}
+.hero .where{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:13.5px;font-weight:600}
+.hero .dots{display:flex;gap:6px;justify-content:flex-end;margin-top:12px}
+.hero .dots button{width:7px;height:7px;border-radius:9px;background:rgba(255,255,255,.4);transition:.3s}
+.hero .dots button.on{width:22px;background:#fff}
+
+/* tools */
+.tools{display:flex;gap:14px;margin-top:34px}
+.search{flex:1;display:flex;align-items:center;gap:12px;height:58px;padding:0 20px;background:var(--card);border:1px solid var(--line2);border-radius:14px;transition:.15s}
+.search:focus-within{border-color:var(--green2);box-shadow:0 0 0 4px rgba(44,94,75,.08)}
+.search input{flex:1;border:0;outline:0;background:none;font-size:15.5px;min-width:0}
+.search input::placeholder{color:#9AA19B}
+.search .hint{font-size:10.5px;letter-spacing:1.6px;color:var(--muted);font-weight:700}
+.search .x{display:none;width:26px;height:26px;border-radius:50%;background:var(--paper2);place-items:center}
+.search.has .x{display:grid}.search.has .hint{display:none}
+.select{position:relative;display:flex;align-items:center;gap:10px;height:58px;padding:0 16px;background:var(--card);border:1px solid var(--line2);border-radius:14px;min-width:200px}
+.select select{appearance:none;-webkit-appearance:none;border:0;outline:0;background:none;flex:1;font-weight:600;font-size:14.5px;cursor:pointer;padding-right:18px}
+.select .chev{position:absolute;right:14px;pointer-events:none}
+.chips{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 16px;border-radius:12px;background:var(--card);border:1px solid var(--line2);font-weight:600;font-size:14px;color:var(--ink2);transition:.15s}
+.chip:hover{border-color:var(--ink2)}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip .c{font-size:11.5px;opacity:.6;font-weight:700}
+
+.sec-h{display:flex;align-items:center;justify-content:space-between;margin:34px 0 22px;padding-top:30px;border-top:1px solid var(--line)}
+.sec-h h3{margin:0;font-size:23px;letter-spacing:-.6px;font-weight:800;display:flex;align-items:baseline;gap:14px}
+.sec-h h3 small{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:0}
+.groupby{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
+.groupby select{border:0;background:none;font-weight:700;color:var(--ink);outline:0;cursor:pointer}
+.grp{display:flex;align-items:center;gap:12px;margin:34px 0 16px}
+.grp h4{margin:0;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.grp span{font-size:12.5px;color:var(--muted)}
+.grp .line{flex:1;height:1px;background:var(--line)}
+
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .25s ease,box-shadow .25s ease;text-align:left}
+.card:hover{transform:translateY(-3px);box-shadow:0 18px 40px -22px rgba(28,43,36,.45)}
+.ph{position:relative;aspect-ratio:16/11;overflow:hidden;background:linear-gradient(135deg,#dfe7de,#c9d6c9)}
+.ph img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block}
+.card:hover .ph img{transform:scale(1.04)}
+.ph::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(10,18,14,.55),transparent 38%);pointer-events:none}
+.ph .lv{position:absolute;z-index:2;top:12px;left:12px;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.92);color:var(--green);font-size:10px;font-weight:800;letter-spacing:1.4px;padding:6px 9px;border-radius:7px}
+.ph .lv .dot{width:6px;height:6px}
+.ph .heart{position:absolute;z-index:3;top:10px;right:10px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.95);display:grid;place-items:center;color:var(--ink)}
+.ph .heart.on{color:var(--accent)}
+.ph .heart.on svg{fill:var(--accent)}
+.ph .time{position:absolute;z-index:2;left:14px;bottom:12px;color:#fff;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.ph .go{position:absolute;z-index:3;right:12px;bottom:10px;display:inline-flex;align-items:center;gap:6px;color:#fff;font-size:12.5px;font-weight:700;padding:6px 10px;border-radius:9px;background:rgba(255,255,255,.14);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.25)}
+.ph .go:hover{background:rgba(255,255,255,.28)}
+.ph .go svg{width:14px;height:14px}
+.cb{padding:16px 20px 0;flex:1;display:flex;flex-direction:column}
+.cb .loc{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:600}
+.cb .loc code{font-family:inherit;font-size:9.5px;font-weight:800;margin-right:4px}
+.cb .t{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-top:10px}
+.cb h5{margin:0;font-size:19px;letter-spacing:-.4px;font-weight:800;line-height:1.2}
+.cb .t svg{color:var(--muted);margin-top:3px}
+.cb p{margin:8px 0 16px;color:var(--ink2);font-size:13.5px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cf{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin:auto -20px 0;padding:13px 20px;font-size:12.5px;color:var(--ink2);font-weight:600}
+.cf span{display:inline-flex;align-items:center;gap:7px}
+.cf svg{width:15px;height:15px}
+.cf .busy{color:var(--accent)}
+.cf .room b{color:var(--live)}
+.empty{text-align:center;color:var(--muted);padding:70px 20px}
+.empty b{display:block;color:var(--ink);font-size:18px;margin-bottom:6px}
+.foot{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.foot button{text-decoration:underline;color:var(--ink2)}
+
+/* ---------- modal ---------- */
+.ovl{position:fixed;inset:0;z-index:50;background:rgba(40,58,48,.42);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .3s}
+.ovl.open{opacity:1;pointer-events:auto}
+.modal{position:fixed;z-index:51;left:50%;top:50%;width:min(1180px,calc(100vw - 48px));max-height:calc(100vh - 48px);transform:translate(-50%,-46%) scale(.98);opacity:0;pointer-events:none;transition:all .35s cubic-bezier(.2,.8,.2,1);background:var(--paper);border-radius:26px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 120px -30px rgba(10,20,15,.55)}
+.modal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+.m-img{position:relative;height:300px;flex:none;background:#203029}
+.m-img img{width:100%;height:100%;object-fit:cover}
+.m-img::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(10,18,14,.35),transparent 50%)}
+.m-img .chip-glass{position:absolute;z-index:2;left:24px;bottom:22px;text-transform:none;letter-spacing:.2px;font-size:11.5px;color:#fff;background:rgba(0,0,0,.35)}
+.m-img .close{position:absolute;z-index:3;top:18px;right:18px;width:44px;height:44px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.m-img .play{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:13px;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.m-img .play i{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.95);display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .2s}
+.m-img .play:hover i{transform:scale(1.07)}
+.m-img .play i svg{width:26px;height:26px;fill:var(--green);stroke:var(--green);margin-left:4px}
+.m-body{display:grid;grid-template-columns:1fr 1fr;min-height:0;flex:1}
+.m-left{padding:34px 34px 30px;overflow:auto;border-right:1px solid var(--line)}
+.crumb{font-size:11.5px;letter-spacing:2px;font-weight:700;color:var(--ink2);text-transform:uppercase}
+.crumb code{font-family:inherit;font-size:9.5px;color:var(--muted);margin-right:6px}
+.m-left h2{font-size:38px;letter-spacing:-1.4px;margin:14px 0 14px;line-height:1.05;font-weight:800}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:7px;background:var(--sage);color:var(--green)}
+.pill.warm{background:#F7E6DC;color:#A8461F}
+.m-left .lead{color:var(--ink2);font-size:15px;line-height:1.6;margin:18px 0 0}
+.see{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.see span{font-size:12.5px;padding:5px 10px;border:1px solid var(--line2);border-radius:99px;color:var(--ink2);background:var(--card)}
+.host{margin-top:22px;background:var(--sage);border-radius:16px;padding:22px 24px}
+.host .eyebrow{color:var(--green2);font-size:10px}
+.host h6{margin:8px 0 8px;font-size:19px;font-weight:800;letter-spacing:-.3px}
+.host p{margin:0 0 16px;color:var(--ink2);font-size:13.5px;line-height:1.55}
+.host small{display:block;margin-top:12px;font-size:11.5px;color:var(--muted)}
+.host .row{display:flex;gap:10px;flex-wrap:wrap}
+.acts{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.acts .btn{height:42px;font-size:13.5px;font-weight:600}
+.credit{margin-top:18px;font-size:11.5px;color:var(--muted);line-height:1.5}
+.credit button{text-decoration:underline;color:var(--ink2);font-size:11.5px}
+.m-right{display:flex;flex-direction:column;min-height:0;padding:30px 30px 22px}
+.conv-h{display:flex;align-items:center;justify-content:space-between}
+.conv-h h3{margin:0;font-size:20px;display:flex;align-items:center;gap:10px;letter-spacing:-.4px}
+.conv-h .eyebrow{font-size:9.5px;color:var(--muted)}
+.conv-sub{margin:8px 0 14px;color:var(--muted);font-size:13px}
+.seg{display:flex;background:var(--paper2);border-radius:11px;padding:4px;gap:4px}
+.seg button{flex:1;height:36px;border-radius:8px;font-size:13px;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:7px}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.seg .n{font-size:11px;color:var(--muted);font-weight:700}
+.seg .live{color:var(--live)}
+.me{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.me .av{width:40px;height:40px;border-radius:50%;background:var(--sage);display:grid;place-items:center;color:var(--green)}
+.me .eyebrow{font-size:9.5px;color:var(--muted)}
+.me b{display:block;font-size:14px;margin-top:3px}
+.me button{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--green2)}
+.feed{flex:1;overflow:auto;padding:12px 2px;min-height:220px}
+.e-state{text-align:center;padding:40px 10px;color:var(--muted);font-size:13px}
+.e-state svg{width:34px;height:34px;color:var(--green2)}
+.e-state b{display:block;color:var(--green);font-size:16px;margin:12px 0 4px}
+.msg{display:flex;gap:10px;padding:10px 0}
+.msg .av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;flex:none;color:var(--green)}
+.msg .who{font-size:12.5px;font-weight:800;display:flex;gap:8px;align-items:baseline}
+.msg .who small{font-weight:500;color:var(--muted);font-size:11px}
+.msg .who .you{font-size:9.5px;letter-spacing:1px;font-weight:800;color:var(--accent)}
+.msg p{margin:3px 0 0;font-size:14px;line-height:1.5;color:var(--ink2);overflow-wrap:anywhere}
+.msg .ops{display:flex;gap:12px;margin-top:4px}
+.msg .ops button{font-size:11px;color:var(--muted);font-weight:600}
+.msg .ops button:hover{color:var(--ink)}
+.sys{text-align:center;font-size:11.5px;color:var(--muted);padding:6px}
+.reacts{display:flex;gap:6px;margin:8px 0 0}
+.reacts button{flex:1;height:34px;border-radius:9px;background:var(--card);border:1px solid var(--line);font-size:16px}
+.composer{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:6px 6px 6px 16px;margin-top:10px}
+.composer input{flex:1;border:0;outline:0;background:none;font-size:14.5px;min-width:0;height:38px}
+.composer .send{width:40px;height:40px;border-radius:10px;background:var(--green);color:#fff;display:grid;place-items:center}
+.composer .send:disabled{background:var(--sage2)}
+.rules{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:11.5px;color:var(--muted);line-height:1.45}
+.rules svg{width:14px;height:14px;margin-top:1px}
+.notice{font-size:12px;color:var(--ink2);background:var(--paper2);border-radius:10px;padding:10px 12px;margin:10px 0 0;line-height:1.45}
+.floaty{position:absolute;z-index:4;bottom:30px;font-size:30px;pointer-events:none;animation:floatUp 2.6s ease-out forwards}
+@keyframes floatUp{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translateY(-200px);opacity:0}}
+
+/* sheet (small dialogs) */
+.sheet{position:fixed;z-index:61;left:50%;top:50%;transform:translate(-50%,-50%) scale(.97);width:calc(100% - 28px);max-height:80%;overflow:auto;background:var(--paper);border-radius:22px;padding:26px;opacity:0;pointer-events:none;transition:.25s;box-shadow:0 30px 90px -20px rgba(0,0,0,.5)}
+.sheet.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+.sheet-bg{position:fixed;inset:0;z-index:60;background:rgba(20,30,25,.35);opacity:0;pointer-events:none;transition:.25s}
+.sheet-bg.open{opacity:1;pointer-events:auto}
+.sheet h3{margin:0 0 6px;font-size:21px;letter-spacing:-.4px}
+.sheet p{color:var(--ink2);font-size:13.5px;line-height:1.55;margin:0 0 14px}
+.sheet .opt{display:block;width:100%;text-align:left;padding:13px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);margin-bottom:8px;font-weight:600;font-size:14px}
+.sheet input{width:100%;height:48px;border-radius:12px;border:1px solid var(--line2);background:var(--card);padding:0 14px;font-size:15px;outline:0}
+.sheet ul{padding-left:18px;margin:0 0 12px}.sheet li{font-size:13.5px;color:var(--ink2);line-height:1.55;margin-bottom:6px}
+.cred{font-size:12px;color:var(--ink2);padding:8px 0;border-bottom:1px solid var(--line);line-height:1.45}
+.cred a{text-decoration:underline}
+.toast{position:fixed;z-index:90;left:50%;bottom:auto;top:80px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:#fff;font-weight:600;font-size:13.5px;padding:12px 18px;border-radius:12px;transition:.25s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* phone device frame */
+html,body{height:100%;overflow:hidden}
+body{display:flex;align-items:center;justify-content:center;background:radial-gradient(900px 600px at 20% 0%,#E9EDE4,transparent 60%),radial-gradient(800px 500px at 100% 100%,#EFE6DD,transparent 60%),#E8E7E0}
+.device{position:relative;width:100%;max-width:440px;height:100dvh;background:var(--paper);overflow:hidden;transform:translateZ(0)}
+.scroller{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.scroller::-webkit-scrollbar{display:none}
+@media (min-width:600px){.device{height:min(920px,calc(100dvh - 40px));border-radius:46px;box-shadow:0 0 0 10px #1d2420,0 0 0 11px #3a443e,0 40px 100px -20px rgba(20,30,25,.45)}}
+/* mobile nav */
+.mtop,.mnav{display:none}
+
+/* ---------- responsive ---------- */
+
+@media all{
+  .shell{grid-template-columns:1fr}
+  .side,.topbar{display:none}
+  .mtop{display:flex;position:sticky;top:0;z-index:20;align-items:center;justify-content:space-between;padding:calc(12px + var(--safe-t)) 18px 12px;background:rgba(246,245,240,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .mtop .logo{font-size:22px;padding:0}.mtop .logo .mark{width:32px;height:32px}.mtop .logo .mark svg{width:18px;height:18px}
+  .mtop .ib{width:40px;height:40px;border-radius:12px;border:1px solid var(--line2);background:var(--card);display:grid;place-items:center}
+  .wrap{padding:22px 18px calc(110px + var(--safe-b))}
+  .head{align-items:flex-start;flex-direction:column}
+  .head h1{font-size:33px;letter-spacing:-1.2px}
+  .head p{font-size:14.5px}
+  .head .btn{display:none}
+  .hero{aspect-ratio:4/5;min-height:0;border-radius:20px;margin-top:20px}
+  .hero::after{background:linear-gradient(0deg,rgba(14,24,19,.82) 0%,rgba(14,24,19,.25) 55%,rgba(14,24,19,.15) 100%)}
+  .hero-txt{left:22px;right:22px;bottom:24px}
+  .hero h2{font-size:34px;letter-spacing:-1.2px}
+  .hero p{font-size:14.5px;margin-bottom:16px}
+  .hero .tl{top:18px;left:18px}.hero .tr{display:none}
+  .hero .br{top:18px;right:18px;bottom:auto}
+  .hero .where{display:none}
+  .tools{flex-direction:column;gap:10px;margin-top:22px}
+  .search,.select{height:52px;flex:none;width:100%}
+  .hero{aspect-ratio:4/4.6}
+  .search .hint{display:none}
+  .chips{flex-wrap:nowrap;overflow-x:auto;margin:16px -18px 0;padding:0 18px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;height:42px}
+  .sec-h{margin:26px 0 16px;padding-top:22px}
+  .sec-h h3{font-size:20px}
+  .grid{grid-template-columns:1fr;gap:18px}
+  .mnav{display:flex;position:fixed;z-index:30;left:12px;right:12px;bottom:calc(12px + var(--safe-b));background:rgba(255,255,255,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:20px;padding:6px;box-shadow:0 12px 30px -12px rgba(28,43,36,.3)}
+  .mnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border-radius:14px;font-size:10.5px;font-weight:700;color:var(--muted)}
+  .mnav button.on{background:var(--sage);color:var(--green)}
+  .mnav svg{width:21px;height:21px}
+  .modal{inset:0;left:0;top:0;width:100%;max-height:none;height:100%;border-radius:0;transform:translateY(100%);overflow:auto;display:block;scrollbar-width:none}
+  .modal.open{transform:none}
+  .m-img{height:auto;aspect-ratio:4/3.2}
+  .m-img .close{top:calc(14px + var(--safe-t))}
+  .m-body{display:block}
+  .m-left{padding:24px 20px 10px;border-right:0;overflow:visible}
+  .m-left h2{font-size:31px}
+  .m-right{padding:22px 20px calc(24px + var(--safe-b));border-top:8px solid var(--paper2)}
+  .feed{min-height:180px;max-height:none;overflow:visible}
+  .composer{position:sticky;bottom:calc(10px + var(--safe-b));box-shadow:0 10px 30px -10px rgba(0,0,0,.25)}
+}
+
+/* ---- compact horizontal cards: one city per row ---- */
+.grid{grid-template-columns:1fr!important;gap:12px!important}
+.card{position:relative;flex-direction:row;align-items:stretch;border-radius:16px;min-height:128px}
+.card:hover{transform:none}
+.ph{width:118px;flex:none;aspect-ratio:auto;min-height:128px;border-radius:0}
+.ph::after{background:linear-gradient(0deg,rgba(10,18,14,.25),transparent 45%)}
+.ph .lv{top:8px;left:8px;font-size:9px;letter-spacing:1.2px;padding:4px 6px;border-radius:6px}
+.ph .lv .dot{width:5px;height:5px}
+.cb{padding:12px 44px 12px 14px;min-width:0;justify-content:center}
+.cb .loc{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cb .loc code{font-size:9px}
+.cb h5{font-size:16px;margin-top:4px;line-height:1.2;letter-spacing:-.3px}
+.cb p{margin:4px 0 8px;font-size:12.5px;line-height:1.45;-webkit-line-clamp:2}
+.cf{border:0;margin:0;padding:0;font-size:12px;gap:8px}
+.cf>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cf svg{width:14px;height:14px}
+.card .go{display:inline-flex;align-items:center;gap:5px;flex:none;height:28px;padding:0 11px;border-radius:99px;background:var(--green);color:#fff;font-size:11.5px;font-weight:700}
+.card .go svg{width:10px;height:10px;fill:#fff;stroke:#fff}
+.card .room{font-size:11px;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:5px}
+.card .room:empty{display:none}
+.card .room svg{width:12px;height:12px}
+.card .room b{color:var(--live)}
+.card .heart{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+.card .heart svg{width:17px;height:17px}
+.card .heart.on{color:var(--accent)}
+.card .heart.on svg{fill:var(--accent)}
+.hero{aspect-ratio:1/1!important}
+.hero .coords{font-size:10.5px;letter-spacing:2px}
+.hero p .lt{display:none}
+.hero .btn{height:42px;font-size:13.5px}
+.hero h2{font-size:30px!important}
+.m-img{aspect-ratio:16/10!important}
+
+/* ---- smaller hero + compact wrapping chips ---- */
+.hero{aspect-ratio:2/1!important;border-radius:18px!important;margin-top:16px!important}
+.hero .tl{top:12px!important;left:12px!important;font-size:8.5px;padding:5px 8px;letter-spacing:1.2px}
+.hero .br{top:12px!important;right:14px!important}
+.hero .count{font-size:15px}.hero .count small{font-size:10px}
+.hero .dots{margin-top:6px;gap:4px}.hero .dots button{width:5px;height:5px}.hero .dots button.on{width:14px}
+.hero-txt{left:16px!important;right:16px!important;bottom:14px!important;display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.hero-txt .coords,.hero-txt p{display:none}
+.hero h2{font-size:22px!important;letter-spacing:-.6px!important;margin:0!important;line-height:1.1}
+.hero .btn{height:32px!important;padding:0 12px;font-size:12px!important;border-radius:9px;flex:none}
+.hero .btn svg{width:13px;height:13px}
+.chips{flex-wrap:wrap!important;overflow:visible!important;margin:14px 0 0!important;padding:0!important;gap:6px!important}
+.chip{height:32px!important;padding:0 10px!important;font-size:12px!important;border-radius:9px!important;gap:5px!important}
+.chip svg{width:14px;height:14px}
+
+.tools{flex-direction:row!important;gap:8px!important;margin-top:14px!important}
+.search{flex:1 1 auto!important;width:auto!important;height:44px!important;padding:0 12px!important;border-radius:12px!important;gap:8px!important}
+.search input{font-size:14px!important}
+.select{flex:none!important;width:128px!important;min-width:0!important;height:44px!important;padding:0 10px!important;border-radius:12px!important;gap:6px!important}
+.select select{font-size:12.5px!important;min-width:0;width:100%;text-overflow:ellipsis}
+.select .chev{right:8px;width:14px;height:14px}
+.sec-h{flex-direction:column;align-items:flex-start!important;gap:6px;margin:18px 0 12px!important;padding-top:16px!important}
+.sec-h h3{font-size:18px!important;gap:8px!important}
+.head h1{font-size:28px!important;margin:8px 0 6px!important}
+.head p{font-size:13.5px!important}
+
+.search{min-width:0!important}
+.select{width:118px!important}
+.chip{height:30px!important;padding:0 9px!important;font-size:11.5px!important;gap:4px!important}
+.chip svg{width:13px!important;height:13px!important}
+
+.burst{position:fixed;left:0;right:0;bottom:120px;height:0;z-index:95;pointer-events:none}
+.floaty{position:absolute;bottom:0;font-size:32px;animation:floatUp 2.8s ease-out forwards;opacity:0}
+@keyframes floatUp{0%{transform:translateY(0) scale(.5);opacity:0}12%{opacity:1;transform:translateY(-30px) scale(1.15)}100%{transform:translateY(-420px) scale(1);opacity:0}}
+.reacts button{position:relative}
+.reacts .rc{position:absolute;top:-6px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:9px;background:var(--green);color:#fff;font-size:9.5px;font-weight:800;display:grid;place-items:center}
+.reacts .rc:empty{display:none}
+.reacts button:active{transform:scale(.9)}
+.rhint{font-size:11.5px;color:var(--muted);text-align:center;margin-top:10px}
+.card .heart{width:auto!important;min-width:32px;padding:0 8px;border-radius:99px!important;gap:4px;display:flex!important;align-items:center;justify-content:center;font-size:11.5px;font-weight:800}
+.card .heart .lc:empty{display:none}
+.lc2{font-size:12px;color:var(--accent);font-weight:800}
+.sortrow{display:flex;gap:16px;flex-wrap:wrap}
+.ph::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,#eef3ec,#cfdccf)}
+.ph img{position:relative}
+
+.reacts button.mine{background:var(--sage);border-color:var(--green2);box-shadow:0 0 0 2px rgba(44,94,75,.25)}
+.reacts button.off{opacity:.38}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3.5 9h17M3.5 15h17M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 7h3.5c4 0 6.5 10 11 10H21M18 14l3 3-3 3M3 17h3.5c1.6 0 2.9-1.6 4-3.5M13.5 9.5C14.6 8 15.8 7 17.5 7H21M18 4l3 3-3 3"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+  <symbol id="i-street" viewBox="0 0 24 24"><path d="M7 21c-1.7 0-3-2-3-5s1.3-7 3-7 3 4 3 7-1.3 5-3 5zM17 17c-1.7 0-3-2-3-5s1.3-7 3-7 3 4 3 7-1.3 5-3 5zM5 21h4M15 17h4"/></symbol>
+  <symbol id="i-landmark" viewBox="0 0 24 24"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M2 10l10-6 10 6z"/></symbol>
+  <symbol id="i-mountain" viewBox="0 0 24 24"><path d="m3 20 6.5-11 4 6.5 2.5-3.5L21 20z"/></symbol>
+  <symbol id="i-waves" viewBox="0 0 24 24"><path d="M2 8c2 0 2-1.5 4-1.5S8 8 10 8s2-1.5 4-1.5S16 8 18 8s2-1.5 4-1.5M2 13c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5M2 18c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5"/></symbol>
+  <symbol id="i-plane" viewBox="0 0 24 24"><path d="M10.5 13.5 3 11l1.5-1.5 8 .5 4.5-4.5c1-1 2.6-1.4 3.3-.7s.3 2.3-.7 3.3L15 12.6l.5 8L14 22l-2.5-7.5L8 18v3l-1.5 1-1-3.5L2 17.5l1-1.5h3z"/></symbol>
+  <symbol id="i-paw" viewBox="0 0 24 24"><circle cx="6" cy="10" r="1.8"/><circle cx="9.5" cy="6" r="1.8"/><circle cx="14.5" cy="6" r="1.8"/><circle cx="18" cy="10" r="1.8"/><path d="M12 11c-3 0-5.5 4.5-5.5 6.5S8.5 20 12 19.5c3.5.5 5.5 0 5.5-2S15 11 12 11z"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.4-4A8 8 0 1 1 20 11.5z"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.5 3.2 8.2 7.5 9.5 4.3-1.3 7.5-5 7.5-9.5V6z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 1 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.3-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c1.9.7 3 2.4 3.5 5.2"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21c-3.9 0-6.5-2.6-6.5-6.2 0-3.4 2.3-5.2 3.5-8.3.6 1.8 1.6 2.6 2.6 3C11.3 6.5 13 4.4 15 3c-.3 3.3 3.5 5.8 3.5 11.2 0 3.9-2.6 6.8-6.5 6.8z"/></symbol>
+</defs></svg>
+
+<div class="device"><div class="scroller" id="scroller">
+<div class="shell">
+  <aside class="side">
+    <div class="logo"><span class="mark"><svg class="i"><use href="#i-globe"/></svg></span><span>elsewhere<b>.</b></span></div>
+    <div class="eyebrow">Your window to the world</div>
+    <button class="nav-item on" data-view="explore"><svg class="i"><use href="#i-compass"/></svg>Explore</button>
+    <button class="nav-item" data-view="saved"><svg class="i"><use href="#i-heart"/></svg>Saved places<span class="n" id="savedN">0</span></button>
+    <hr>
+    <div class="eyebrow" style="margin-top:22px">Explore by country</div>
+    <div class="clist" id="clist"></div>
+    <div class="side-foot">
+      <svg class="i glob"><use href="#i-globe"/></svg>
+      <h4>A small escape.</h4>
+      <p>Real places, right now. Wherever you are.</p>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="mtop">
+      <div class="logo"><span class="mark"><svg class="i"><use href="#i-globe"/></svg></span><span>elsewhere<b>.</b></span></div>
+      <button class="ib" data-surprise aria-label="Surprise me"><svg class="i"><use href="#i-shuffle"/></svg></button>
+    </header>
+    <div class="topbar">
+      <span class="tag">The world, a little closer <svg class="i"><use href="#i-arrow"/></svg></span>
+      <span class="online" id="online"><span class="dot"></span> <span id="onlineTxt">Live windows open</span></span>
+    </div>
+    <div class="wrap" id="wrap"></div>
+  </div>
+</div>
+
+</div>
+<nav class="mnav" id="mnav">
+  <button data-view="explore" class="on"><svg class="i"><use href="#i-compass"/></svg>Explore</button>
+  <button data-mcountry><svg class="i"><use href="#i-globe"/></svg>Countries</button>
+  <button data-view="saved"><svg class="i"><use href="#i-heart"/></svg>Saved</button>
+  <button data-me><svg class="i"><use href="#i-users"/></svg>You</button>
+</nav>
+
+<div class="ovl" id="ovl"></div>
+<section class="modal" id="modal" aria-modal="true" role="dialog"></section>
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+<div id="burst" class="burst"></div>
+</div>
+
+<script src="config.js" onerror="void 0"></script>
+<script>
+/* elsewhere — web backend shim.
+   When config.js provides a Supabase project, this recreates the small
+   storage / live-room API the app uses, so the same index.html runs on
+   Vercel (or any static host). Inside Claude it does nothing. */
+(function(){
+  const C = window.ELSEWHERE_CONFIG;
+  if (window.claude || !C || !C.supabaseUrl || !C.supabaseAnonKey || /YOUR_/.test(C.supabaseUrl)) return;
+  const ready = (async () => {
+    const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
+    const sb = createClient(C.supabaseUrl, C.supabaseAnonKey);
+    let { data: { session } } = await sb.auth.getSession();
+    if (!session) { const r = await sb.auth.signInAnonymously(); if (r.error) throw r.error; session = r.data.session; }
+    const uid = session.user.id;
+    let admin = false;
+    try { const r = await sb.from("admins").select("user_id").eq("user_id", uid).maybeSingle(); admin = !!r.data; } catch (e) {}
+    return { sb, uid, admin };
+  })();
+  ready.catch(e => console.warn("[elsewhere] backend unavailable:", e && e.message));
+
+  const split = p => { const i = p.lastIndexOf("/"); return [p.slice(0, i), p.slice(i + 1)]; };
+  const mkSnap = (id, data) => ({ id, exists: data != null, data: () => data == null ? undefined : data, metadata: { fromCache: false, hasPendingWrites: false } });
+  const err = e => ({ code: /row-level|permission|violates/i.test(e && e.message || "") ? "invalid_argument" : "unavailable", message: e && e.message });
+
+  function makeDb(ctx) {
+    const { sb, uid } = ctx;
+    const doc = path => {
+      const [collection, doc_id] = split(path);
+      return {
+        id: doc_id, path,
+        async get() { const r = await sb.from("kv").select("data").eq("path", path).maybeSingle(); if (r.error) throw err(r.error); return mkSnap(doc_id, r.data ? r.data.data : null); },
+        async set(data) { const r = await sb.from("kv").upsert({ path, collection, doc_id, data, updated_at: new Date().toISOString() }); if (r.error) throw err(r.error); },
+        async update(data) { const cur = await this.get(); if (!cur.exists) throw { code: "invalid_argument", message: "missing" }; return this.set(Object.assign({}, cur.data(), data)); },
+        async delete() { const r = await sb.from("kv").delete().eq("path", path); if (r.error) throw err(r.error); }
+      };
+    };
+    const collection = name => ({
+      path: name,
+      doc: id => doc(name + "/" + id),
+      onSnapshot(next, onErr) {
+        let alive = true;
+        const load = async () => {
+          const r = await sb.from("kv").select("doc_id,data").eq("collection", name).limit(5000);
+          if (!alive) return;
+          if (r.error) { onErr && onErr(err(r.error)); return; }
+          const docs = r.data.map(x => mkSnap(x.doc_id, x.data));
+          next({ docs, size: docs.length, empty: !docs.length, docChanges: () => [], metadata: { fromCache: false, hasPendingWrites: false } });
+        };
+        load();
+        let t; const ch = sb.channel("kv-" + name + "-" + Math.random().toString(36).slice(2))
+          .on("postgres_changes", { event: "*", schema: "public", table: "kv", filter: "collection=eq." + name }, () => { clearTimeout(t); t = setTimeout(load, 250); })
+          .subscribe();
+        const poll = setInterval(load, 30000);
+        return () => { alive = false; clearInterval(poll); sb.removeChannel(ch); };
+      }
+    });
+    return { doc, collection };
+  }
+
+  function makeRoom(ctx, name, peerId) {
+    const { sb, uid } = ctx;
+    const handlers = {}, peerHandlers = [], connHandlers = [];
+    let state = {}, connected = false, peers = [];
+    const ch = sb.channel("room-" + name, { config: { presence: { key: peerId }, broadcast: { self: true } } });
+    ["chat", "react"].forEach(topic => ch.on("broadcast", { event: topic }, ({ payload }) => {
+      const p = payload || {}; const m = { topic, data: p.data, by: p.by || null, peer: p.peer, isMe: p.peer === peerId, sameTab: p.peer === peerId, kind: "viewer", guest: false };
+      (handlers[topic] || []).forEach(h => { try { h(m); } catch (e) {} });
+    }));
+    ch.on("presence", { event: "sync" }, () => {
+      const st = ch.presenceState();
+      peers = Object.entries(st).map(([k, arr]) => ({ peer: k, by: (arr[0] || {}).by || null, isMe: k === peerId, sameTab: k === peerId, kind: "viewer", guest: false, presence: arr[0] || {}, updatedAt: Date.now() }));
+      peerHandlers.forEach(h => { try { h({ peers, joined: [], left: [], updated: [] }); } catch (e) {} });
+    });
+    ch.subscribe(status => { connected = status === "SUBSCRIBED"; if (connected) ch.track(Object.assign({ by: uid }, state)); connHandlers.forEach(h => h(connected)); });
+    return {
+      name,
+      on(topic, h) { (handlers[topic] = handlers[topic] || []).push(h); return () => { handlers[topic] = handlers[topic].filter(x => x !== h); }; },
+      async emit(topic, data) { await ch.send({ type: "broadcast", event: topic, payload: { data, by: uid, peer: peerId } }); },
+      async presence(patch) { for (const k in patch) { if (patch[k] === null) delete state[k]; else state[k] = patch[k]; } if (connected) await ch.track(Object.assign({ by: uid }, state)); },
+      peers: () => peers,
+      onPeers(h) { peerHandlers.push(h); return () => {}; },
+      connected: () => connected,
+      onConnection(h) { connHandlers.push(h); setTimeout(() => h(connected)); return () => {}; },
+      async leave() { await sb.removeChannel(ch); },
+      async join(n) { return makeRoom(ctx, n, peerId); }
+    };
+  }
+
+  const peerId = Math.random().toString(36).slice(2, 12);
+  const cache = {};
+  window.claude = {
+    use: name => cache[name] || (cache[name] = ready.then(ctx => {
+      if (name === "db") return makeDb(ctx);
+      if (name === "room") return makeRoom(ctx, "lobby", peerId);
+      if (name === "user") return { id: async () => ctx.uid, me: async () => ({ id: ctx.uid }), isOwner: () => ctx.admin, canEdit: () => ctx.admin, can: () => true, profiles: async () => ({}) };
+      return null;
+    }).catch(() => null))
+  };
+})();
+</script>
+<script>
+/* ===================== DATA =====================
+   id|name|city|cc|category|busy|timezone|what you can see|shape|official page|youtube id
+   Live stream IDs verified as live on YouTube, 2026-11-05.
+   Photos: Wikimedia Commons, free licenses — see credits.json. */
+const RAW = `
+times-square|Times Square|New York|US|street|1|America/New_York|Giant billboards, Broadway crowds, yellow cabs, street performers||https://www.earthcam.com/usa/newyork/timessquare/|KHy_n-EMWY8
+brooklyn-bridge|Brooklyn Bridge|New York|US|landmark|1|America/New_York|Stone towers, East River, Lower Manhattan skyline|bridge||tErYxn2UM5Y
+statue-of-liberty|Statue of Liberty|New York|US|landmark|0|America/New_York|Lady Liberty, harbor ferries, New Jersey shore|statue||o5Ie_LpZ9uk
+jackson-town-square|Jackson Town Square|Jackson, Wyoming|US|street|0|America/Denver|Elk-antler arches, wooden boardwalks, the famous red trucks||https://www.seejh.com/|1EiC9bvVGnk
+golden-gate|Golden Gate Bridge|San Francisco|US|landmark|0|America/Los_Angeles|Red bridge towers, rolling fog, sailboats, container ships|bridge||MQEu33EtfbI
+santa-monica-pier|Santa Monica Pier|Los Angeles|US|coast|1|America/Los_Angeles|Ferris wheel, surfers, sunset over the Pacific|wheel||v97JpT3ZA0w
+lax|Los Angeles International (LAX)|Los Angeles|US|airport|1|America/Los_Angeles|Heavy jets on final approach, A380s, planespotters|||KzsNnyN8D_Q
+south-beach|South Beach|Miami|US|coast|1|America/New_York|Pastel lifeguard towers, Ocean Drive, turquoise water|palm||plq7c9ogBC4
+bourbon-street|Bourbon Street|New Orleans|US|street|1|America/Chicago|Jazz bars, iron balconies, parades and bead throws|||xqdukYhcGEU
+nashville-broadway|Lower Broadway|Nashville|US|street|1|America/Chicago|Honky-tonk neon, live country music, pedal taverns|||ICva1RPK6Do
+chicago-river|Chicago Riverwalk|Chicago|US|landmark|1|America/Chicago|River tour boats, drawbridges, skyscraper canyon|skyline||O0UGT7AT3aw
+duval-street|Duval Street|Key West|US|street|1|America/New_York|Bars, roosters, scooters, sunset crowds|||H_kswlYZN5o
+waikiki|Waikiki Beach|Honolulu|US|coast|1|Pacific/Honolulu|Diamond Head, surf lessons, outrigger canoes|palm||4CK0CsimBHs
+kilauea|Kīlauea Volcano|Hawaiʻi Volcanoes NP|US|nature|0|Pacific/Honolulu|Crater rim, steam plumes, lava glow during eruptions|volcano|https://www.usgs.gov/volcanoes/kilauea/webcams|HggWKlZv9yk
+old-faithful|Old Faithful Geyser|Yellowstone|US|nature|0|America/Denver|Eruptions roughly every 60–110 min, bison, steam|geyser|https://www.nps.gov/yell/learn/photosmultimedia/webcams.htm|
+yosemite|Yosemite Valley|California|US|nature|0|America/Los_Angeles|Half Dome, El Capitan, granite cliffs, winter snow|mountain||AV66TFbwVNc
+brooks-falls|Brooks Falls Bear Cam|Katmai, Alaska|US|wildlife|0|America/Anchorage|Brown bears catching leaping salmon (Jul–Sep)|bear|https://explore.org/livecams/brown-bears/brown-bear-salmon-cam-brooks-falls|J7ZrIDvqlic
+fairbanks-aurora|Aurora Sky Cam|Fairbanks, Alaska|US|nature|0|America/Anchorage|Northern lights on dark winter nights|aurora||O52zDyxg5QI
+monterey-kelp|Kelp Forest Cam|Monterey|US|wildlife|0|America/Los_Angeles|Swaying giant kelp, leopard sharks, sardine schools|reef|https://www.montereybayaquarium.org/animals/live-cams|w3LjpFhySTg
+niagara-falls|Horseshoe Falls|Niagara Falls|CA|nature|1|America/Toronto|Thundering falls, mist, rainbows, tour boats|falls||qx7gry390YA
+cn-tower|CN Tower|Toronto|CA|landmark|0|America/Toronto|The tower, Lake Ontario, Rogers Centre|needle||0r5sNl5MTj8
+canmore-main|Canmore Main Street|Canmore|CA|street|0|America/Edmonton|Mountain-town main street, Three Sisters peaks, cafés|||_0wPODlF9wU
+vancouver-harbour|Vancouver Harbour|Vancouver|CA|coast|0|America/Vancouver|Seaplanes, cruise ships, North Shore mountains|harbor||DhkGXCgqWjg
+whistler|Whistler Village|Whistler|CA|nature|1|America/Vancouver|Ski runs, gondolas, après-ski crowds|mountain||IEhDUXECe_k
+zocalo|Zócalo|Mexico City|MX|landmark|1|America/Mexico_City|Giant flag, Metropolitan Cathedral, festivals|dome||gj6lXqFzzbQ
+cancun-beach|Cancún Hotel Zone|Cancún|MX|coast|1|America/Cancun|Caribbean turquoise, white sand, parasailing|palm||NeHO46kDJ20
+copacabana|Copacabana Beach|Rio de Janeiro|BR|coast|1|America/Sao_Paulo|Wave-pattern promenade, beach football, Sugarloaf|palm||wyEi0OPai5g
+paulista|Avenida Paulista|São Paulo|BR|street|1|America/Sao_Paulo|Skyscrapers, Sunday street closures, MASP museum|||eTz4XgOQaAE
+obelisco|Obelisco & 9 de Julio|Buenos Aires|AR|landmark|1|America/Argentina/Buenos_Aires|The obelisk, one of the world's widest avenues|obelisk||r8Busmkpsh8
+abbey-road|Abbey Road Crossing|London|GB|street|1|Europe/London|Fans recreating the famous album-cover walk, London traffic||https://www.abbeyroad.com/crossing|zMCea32gpmg
+london-bridge|London Bridge & the Thames|London|GB|landmark|1|Europe/London|River Thames boats, Golden Hinde ship, City skyline|bridge||MXmzsjABC-U
+heathrow|Heathrow Airport|London|GB|airport|1|Europe/London|Back-to-back arrivals, nearly every major airline|||uDBYuEV4zjI
+royal-mile|Royal Mile|Edinburgh|GB|street|1|Europe/London|Cobblestones, bagpipers, festival crowds|||d2Ii5ybhbQY
+loch-ness|Loch Ness|Highlands|GB|nature|0|Europe/London|Dark waters, Urquhart Castle, monster hunters|lake||IrH--L0WdrY
+brighton-marina|Brighton Marina|Brighton|GB|coast|0|Europe/London|Yachts, breakwater, English Channel|harbor||_5uNtP9z1xg
+temple-bar|Temple Bar|Dublin|IE|street|1|Europe/Dublin|Pub fronts, buskers, weekend crowds|||3nyPER2kzqk
+eiffel-tower|Eiffel Tower|Paris|FR|landmark|1|Europe/Paris|The tower, hourly sparkle at night, the Seine|eiffel||YkKGantlWH0
+sacre-coeur|Sacré-Cœur & Montmartre|Paris|FR|landmark|1|Europe/Paris|White basilica dome, Montmartre hill, Paris rooftops|dome||-xzg3wujOVM
+saint-gervais|Saint-Gervais Mont-Blanc|French Alps|FR|nature|0|Europe/Paris|Ski slopes, Mont Blanc massif, alpine village|mountain||elGbyX0KCMg
+cannes|Boulevard du Midi|Cannes|FR|coast|1|Europe/Paris|Riviera beach, palm-lined road, yachts|palm||z6BNMoj9Pyo
+rialto|Grand Canal & Rialto|Venice|IT|landmark|1|Europe/Rome|Gondolas, vaporetto boats, Rialto Bridge|bridge||nviU2HYj-Jc
+st-marks|St. Mark's Square|Venice|IT|landmark|1|Europe/Rome|Basilica, bell tower, pigeons, acqua alta floods|dome||ASqGNET31VY
+st-peters|St. Peter's Dome|Rome|IT|landmark|1|Europe/Rome|Michelangelo's dome, Prati rooftops, Vatican|dome||gXm3PGF4z0s
+florence-duomo|Florence Cathedral|Florence|IT|landmark|1|Europe/Rome|Brunelleschi's dome, terracotta rooftops|dome||qBtMuRnf7BY
+milan-duomo|Piazza del Duomo|Milan|IT|landmark|1|Europe/Rome|Gothic cathedral spires, Galleria crowds|spires||Iuc9BjSriaM
+etna|Mount Etna|Sicily|IT|nature|0|Europe/Rome|Europe's most active volcano, summit smoke, eruptions|volcano||EGk3Mr0OshE
+lake-como|Lake Como|Lombardy|IT|nature|0|Europe/Rome|Villas, ferries, alpine lake reflections|lake||d0-a8UJAyvY
+barcelona-skyline|Barcelona Skyline|Barcelona|ES|landmark|0|Europe/Madrid|City grid, Sagrada Família spires, Mediterranean haze|spires||J-UBf0pd2sE
+ibiza|Playa d'en Bossa|Ibiza|ES|coast|1|Europe/Madrid|Beach clubs, Mediterranean sunsets|palm||HP2PhJbLevY
+tenerife-airport|Tenerife Airport|Tenerife|ES|airport|0|Atlantic/Canary|Holiday jets, volcanic island backdrop|||yrx0fvj-4QI
+lisbon-rooftops|Lisbon Rooftops|Lisbon|PT|landmark|1|Europe/Lisbon|Terracotta roofs, Tagus river, castle hill|skyline||tKIgNtEgLN0
+porto-ribeira|Ribeira & Dom Luís I Bridge|Porto|PT|coast|1|Europe/Lisbon|Douro river, port-wine boats, iron bridge|bridge||HyJCliLzdow
+dam-square|Dam Square|Amsterdam|NL|street|1|Europe/Amsterdam|Royal Palace, trams, bicycles, pigeons|||Gd9d4q6WvUY
+damrak|Damrak & Beursplein|Amsterdam|NL|street|1|Europe/Amsterdam|Trams, tourists, canal-house facades|||43qH0tDA6lM
+schiphol|Amsterdam Schiphol|Amsterdam|NL|airport|1|Europe/Amsterdam|KLM blue tails, Polderbaan landings|||SdqT9hCNeuo
+alexanderplatz|Alexanderplatz|Berlin|DE|street|1|Europe/Berlin|TV Tower, trams, panorama over Berlin|||IRqboacDNFg
+marienplatz|Marienplatz|Munich|DE|street|1|Europe/Berlin|Town hall Glockenspiel, Christmas market in winter|||VAS9A0LRGHA
+rhine-falls|Rhine Falls|Schaffhausen|CH|nature|1|Europe/Zurich|Europe's most powerful waterfall, boats to the rock|falls||UCgLr29bxO8
+hamburg-port|Port of Hamburg|Hamburg|DE|coast|0|Europe/Berlin|Mega container ships, cranes, Elbphilharmonie|harbor||idYU-7HrTu8
+jungfraujoch|Jungfraujoch|Bernese Alps|CH|nature|0|Europe/Zurich|Aletsch Glacier, Sphinx observatory, snowfields|mountain||UcfudevG7v8
+austrian-alps|Austrian Alps Panorama|Austria|AT|nature|0|Europe/Vienna|Rotating views of alpine villages, lakes and peaks|mountain||NIuO6hrFTrg
+prague-old-town|Old Town Square|Prague|CZ|landmark|1|Europe/Prague|Astronomical clock, Týn church, markets|spires||kvYMIaXclIE
+acropolis|Acropolis|Athens|GR|landmark|0|Europe/Athens|The Parthenon on its hill, city sprawl|temple||HEhZQY-WWo8
+hvar|Hvar Harbor|Hvar|HR|coast|1|Europe/Zagreb|Island harbor, yachts, Adriatic sunsets|harbor||0wHWHAFnNh0
+lyngen-aurora|Lyngen Northern Lights|Lyngen|NO|nature|0|Europe/Oslo|Northern lights over the Lyngen Alps, polar night|aurora||SwXtDFC9Bro
+reykjanes|Reykjanes Peninsula|Grindavík area|IS|nature|0|Atlantic/Reykjavik|Volcanic fissures, lava fields, eruptions when active|volcano||8VjPqa2go6o
+rovaniemi|Arctic Circle Village|Rovaniemi|FI|landmark|1|Europe/Helsinki|The Arctic Circle line, snow, reindeer, Christmas crowds|cabin||Cp4RRAEgpeU
+bosphorus|Bosphorus|Istanbul|TR|coast|1|Europe/Istanbul|Ferries, tankers, bridges between two continents|bridge||e8zk64waMnw
+makkah|Masjid al-Haram|Makkah|SA|landmark|1|Asia/Riyadh|The Kaaba, pilgrims performing tawaf around the clock|cube||eC4LfEVxvKg
+table-mountain|Table Mountain|Cape Town|ZA|landmark|0|Africa/Johannesburg|Flat-topped mountain, tablecloth clouds, harbor|table||jOqASqt3vVI
+tembe|Tembe Elephant Park|KwaZulu-Natal|ZA|wildlife|0|Africa/Johannesburg|Big-tusker elephants, nyala, kudu at the waterhole|elephant||gdrNUUf-cQw
+namib-waterhole|Namib Desert Waterhole|Gondwana Namib Park|NA|wildlife|0|Africa/Windhoek|Oryx, zebra, ostrich, hyenas at night|savanna||ydYDqZQpim8
+etosha|Okaukuejo Waterhole|Etosha NP|NA|wildlife|0|Africa/Windhoek|Rhinos, elephants, lions after dark|elephant||JMMoRwYo5kE
+mpala|Mpala Research Centre|Laikipia|KE|wildlife|0|Africa/Nairobi|Giraffes, hippos, elephants at the river|giraffe||oORXfTviuCs
+kashi-vishwanath|Kashi Vishwanath Dham|Varanasi|IN|landmark|1|Asia/Kolkata|Temple courtyard, pilgrims, aarti ceremonies|ghat||WPZ0xL0-sKs
+everest|Mount Everest|Khumbu|NP|nature|0|Asia/Kathmandu|Roof of the world, summit plume, prayer flags|mountain||SXsPeIqGJMA
+sukhumvit|Sukhumvit Soi 11|Bangkok|TH|street|1|Asia/Bangkok|Nightlife street, tuk-tuks, neon bars|||UemFRPrl1hk
+patong|Patong Beach|Phuket|TH|coast|1|Asia/Bangkok|Long-tail boats, jet skis, tropical sunsets|palm||_nvG0c9keWI
+marina-bay|Marina Bay Sands|Singapore|SG|landmark|1|Asia/Singapore|Iconic hotel, light show, Gardens by the Bay|mbs||y2P7ZERGcb0
+jimbaran|Jimbaran Bay Panorama|Bali|ID|coast|0|Asia/Makassar|Wide Bali bay, sunsets, planes landing at Denpasar|palm||L1duJDAqbJY
+bromo|Mount Bromo|East Java|ID|nature|0|Asia/Jakarta|Smoking crater, sea of sand, sunrise crowds|volcano||2E7jzu5mP-o
+vinh-tuy|Red River & Vĩnh Tuy Bridge|Hanoi|VN|landmark|1|Asia/Ho_Chi_Minh|Scooter traffic, Red River, Hanoi skyline|bridge||6Vwsx3igmIQ
+victoria-harbour|Victoria Harbour|Hong Kong|HK|coast|1|Asia/Hong_Kong|Star Ferry, skyline, Symphony of Lights|skyline||S7LpD4-Tq0E
+taipei-101|Taipei 101|Taipei|TW|landmark|0|Asia/Taipei|Bamboo-shaped skyscraper, city basin|needle||Ndo_8RuefH4
+taipei-streets|Taipei Intersections|Taipei|TW|street|1|Asia/Taipei|Rotating views of busy Taipei junctions, scooter waves|||oxM2E0SBITA
+the-bund|The Bund|Shanghai|CN|landmark|1|Asia/Shanghai|Pudong skyline, Oriental Pearl Tower, river boats|skyline||mizy6R7JGdM
+shibuya|Shibuya Scramble Crossing|Tokyo|JP|street|1|Asia/Tokyo|The world's busiest crossing, giant screens, Hachikō exit|||dfVK7ld38Ys
+kabukicho|Kabukichō|Tokyo|JP|street|1|Asia/Tokyo|Neon signs, Godzilla head, nightlife|||DjdUEyjx8GM
+akihabara|Akihabara|Tokyo|JP|street|1|Asia/Tokyo|Electric Town, anime shops, arcades|||4cA_-WAm-SE
+tokyo-tower|Tokyo Tower|Tokyo|JP|landmark|0|Asia/Tokyo|Orange lattice tower, city lights|eiffel||nu6NE55_X7A
+mt-fuji|Mount Fuji|Yamanashi|JP|nature|0|Asia/Tokyo|Snow-capped Fuji, Lake Kawaguchi reflections|fuji||bdUbACCWmoY
+dotonbori|Dōtonbori|Osaka|JP|street|1|Asia/Tokyo|Running-man sign, canal, street food|||6OgYfTMOmhY
+kiyomizu-zaka|Kiyomizu-zaka|Kyoto|JP|street|1|Asia/Tokyo|Old slope street to Kiyomizu Temple, shops, kimono strollers|||cUnYPpK7ENk
+haneda|Tokyo Haneda|Tokyo|JP|airport|1|Asia/Tokyo|JAL & ANA traffic, Tokyo Bay approaches|||KMqigNv3LcY
+tanzan-shrine|Tanzan Shrine|Nara|JP|landmark|0|Asia/Tokyo|Thirteen-story pagoda, forest, autumn leaves|pagoda||zppA64fWxfE
+sapporo-odori|Odori Park|Sapporo|JP|street|1|Asia/Tokyo|Snow Festival sculptures, TV tower|||RBHsITnIoI0
+okinawa|Okinawa Beach|Okinawa|JP|coast|0|Asia/Tokyo|Emerald sea, coral reefs, typhoon waves|palm||AhQErfreEOE
+han-river|Han River|Seoul|KR|coast|0|Asia/Seoul|Bridges, Yeouido skyline, city lights on the water|skyline||RVvYQghFCXk
+seoul-station|Seoul Station Plaza|Seoul|KR|street|1|Asia/Seoul|Commuters, old station building, city buses|||C3hW1VrwmNc
+gyeongbokgung|Gyeongbokgung Palace|Seoul|KR|landmark|1|Asia/Seoul|Royal palace gate, guards, hanbok visitors|hanok||IcTMxC_k57A
+n-seoul-tower|N Seoul Tower|Seoul|KR|landmark|0|Asia/Seoul|Namsan tower, Han River city lights|needle||GhNscofIqHU
+haeundae|Haeundae Beach|Busan|KR|coast|1|Asia/Seoul|Skyline beach, summer umbrella sea, festivals|skyline||NZBNrD99jXI
+seongsan|Seongsan Ilchulbong|Jeju|KR|nature|0|Asia/Seoul|Tuff-cone crater, sunrise over the sea|crater||udRDI1uDdvQ
+sydney-opera|Sydney Opera House|Sydney|AU|landmark|1|Australia/Sydney|Sails, Harbour Bridge, ferries, NYE fireworks|opera||dpGs27zaiKs
+flinders|Flinders Street Station|Melbourne|AU|street|1|Australia/Melbourne|Station clocks, trams, Federation Square|||gEbrHdFRgpQ
+tropical-reef|Tropical Reef Cam|Long Beach|US|wildlife|0|America/Los_Angeles|Coral reef tank, tropical fish, rays|reef|https://explore.org/livecams|DHUnz4dyb54
+caroline-bay|Caroline Bay|Timaru|NZ|coast|0|Pacific/Auckland|Sandy bay, port, Canterbury coast|||FgePIvvAE88
+auckland-harbour|Auckland Harbour|Auckland|NZ|coast|0|Pacific/Auckland|Sky Tower, sailboats, Harbour Bridge|harbor||PaLDpyFxpXE
+iss|Earth from the ISS|Low Earth orbit|XS|nature|0|UTC|Earth rolling by at 28,000 km/h, a sunrise every 90 minutes|space||ROboUHfPUrU
+gangmun|Gangmun Beach|Gangneung|KR|coast|0|Asia/Seoul|East Sea sunrise, pine trees, coffee street|||ZddW7k1ZXr4
+sokcho|Sokcho Sea|Sokcho|KR|coast|0|Asia/Seoul|East Sea waves, fishing boats, Seorak coast|||fehpiqUmdl0
+gwangalli|Gwangalli & Gwangan Bridge|Busan|KR|coast|1|Asia/Seoul|Lit-up Gwangan Bridge, beach crowds, drone shows|||0pip1gedc8A
+lotte-tower|Lotte World Tower|Seoul|KR|landmark|1|Asia/Seoul|Korea's tallest tower, Jamsil skyline, night lights|||CNrTe2tXh9w
+seokchon|Seokchon Lake|Seoul|KR|nature|1|Asia/Seoul|Lakeside walk, cherry blossoms, Lotte World castle|||AKcsJqkcRP0
+homigot|Homigot Sunrise Square|Pohang|KR|landmark|0|Asia/Seoul|Hand of Harmony sculpture, first sunrise on the peninsula|||r06QHbh05qM
+yeouido|Yeouido & the Han River|Seoul|KR|nature|1|Asia/Seoul|Han River, National Assembly, Seoul skyline|||-G99Sz86WzA
+hongdae|Hongdae Street|Seoul|KR|street|1|Asia/Seoul|Buskers, cafés, late-night youth crowds|||rHj1PNSOw_4
+busan-port|Busan North Port|Busan|KR|coast|0|Asia/Seoul|Cruise terminal, Busan Harbor Bridge, ferries|||hmO9Gs-N6iI
+fremont|Fremont Street|Las Vegas|US|street|1|America/Los_Angeles|LED canopy, zip line, old-Vegas neon|||ZvYvZLfPatQ
+key-west-harbor|Key West Harbor|Key West|US|coast|1|America/New_York|Cruise ships, sunset sails, Mallory Square crowds|||iHJbTrQSZys
+venice-beach|Venice Beach|Los Angeles|US|coast|1|America/Los_Angeles|Boardwalk, skate park, surfers, sunsets|||0IgjqQzibqE
+san-diego|San Diego Coast|San Diego|US|coast|0|America/Los_Angeles|Rotating views of beaches, bay and skyline|||edz0ux7JClE
+huntington|Huntington Beach Pier|Huntington Beach|US|coast|1|America/Los_Angeles|Surf City pier, big waves, surfers|||mhQjsLBfOoY
+lake-tahoe|Lake Tahoe|Nevada|US|nature|0|America/Los_Angeles|Alpine lake, snowy peaks, blue water|||Lk0Z5ExUWL0
+rainier|Mount Rainier & Tacoma|Washington|US|nature|0|America/Los_Angeles|Glacier-capped volcano over the city skyline|||tB1W4974yFA
+washington-monument|Washington Monument|Washington, D.C.|US|landmark|0|America/New_York|The obelisk, National Mall, Capitol dome|||oDCAAfOSqvA
+boston-harbor|Boston Harbor|Boston|US|coast|0|America/New_York|Harbor islands, ferries, Logan approaches|||3I_cIS24AfY
+laguardia|LaGuardia Airport|New York|US|airport|1|America/New_York|Short-haul jets over Flushing Bay|||T_QsY01tIK0
+midway|Chicago Midway Airport|Chicago|US|airport|1|America/Chicago|Southwest jets landing over city blocks|||67BCsiW-1Io
+maui|Kaanapali Beach|Maui|US|coast|0|Pacific/Honolulu|Golden sand, Black Rock, whales in winter|||YXji6UQ0bwY
+sitka|Sitka Harbor|Sitka, Alaska|US|coast|0|America/Sitka|Fishing boats, island mountains, eagles|||sF5hFDGN20Y
+mendenhall|Mendenhall Glacier|Juneau, Alaska|US|nature|0|America/Juneau|Blue ice glacier, waterfall, mountain goats|||jJI5w_RVGtQ
+telluride|Downtown Telluride|Colorado|US|street|0|America/Denver|Box-canyon ski town, Victorian main street|||8Et9fVZld7E
+big-bear|Big Bear Lake|California|US|nature|0|America/Los_Angeles|Mountain lake, village, snowy pines|||pofGnqJbCBY
+decorah|Decorah Eagle Nest|Iowa|US|wildlife|0|America/Chicago|Bald eagle nest, eaglets in spring|||IVmL3diwJuw
+katmai-river|Brooks River Riffles|Katmai, Alaska|US|wildlife|0|America/Anchorage|Bears fishing the shallow riffles|||z7_GhJeFxQI
+st-thomas|Lindbergh Bay|St. Thomas|US|coast|0|America/St_Thomas|Turquoise bay, floating taco bar, planes overhead|||scYnfhS1diY
+chicago-lakefront|Chicago Lakefront|Chicago|US|landmark|1|America/Chicago|Navy Pier, Lake Michigan, skyline|||ymeNullNzS0
+lake-hood|Lake Hood Seaplane Base|Anchorage|US|airport|0|America/Anchorage|World's busiest seaplane base, float planes|||61pi8UjLOlo
+asakusa|Sensō-ji Temple|Tokyo|JP|landmark|1|Asia/Tokyo|Temple grounds, incense, kimono visitors|||HjRZNBm1kms
+skytree|Tokyo Skytree|Tokyo|JP|landmark|0|Asia/Tokyo|World's tallest tower, Sumida River, city lights|||rqrUZxYeFSw
+shinjuku|Shinjuku East Exit|Tokyo|JP|street|1|Asia/Tokyo|The giant 3D cat billboard, crowds, neon|||Zhmmh7l6KEw
+ikebukuro|Sunshine 60 Street|Tokyo|JP|street|1|Asia/Tokyo|Ikebukuro's busiest shopping street|||0HCO9fncu_4
+tokyo-station|Tokyo Station Marunouchi|Tokyo|JP|landmark|1|Asia/Tokyo|Red-brick station, business district, plaza|||ZN4gh5IOowM
+odaiba|Rainbow Bridge|Tokyo|JP|landmark|0|Asia/Tokyo|Rainbow Bridge, Tokyo Bay, expressway lights|||kGG1CaeQ9oM
+yokohama|Yokohama Port|Yokohama|JP|coast|0|Asia/Tokyo|Osanbashi pier, Hikawa Maru, Marine Tower|||tV-rE32ydlk
+umeda|Umeda|Osaka|JP|street|1|Asia/Tokyo|Osaka's north hub, station crowds, skyscrapers|||il6iGt3CuiE
+nakasu|Nakasu|Fukuoka|JP|street|1|Asia/Tokyo|Riverside yatai stalls, neon reflections|||iy8A4LMT_TU
+osaka-castle|Osaka Castle|Osaka|JP|landmark|0|Asia/Tokyo|Castle keep, river, Tenmabashi|||dOKOq-jU1b8
+susukino|Susukino Crossing|Sapporo|JP|street|1|Asia/Tokyo|Nightlife crossing, Nikka sign, snow|||wRYonRnKsKw
+miyajima|Itsukushima Shrine|Miyajima|JP|landmark|0|Asia/Tokyo|Shrine entrance, deer, floating torii nearby|||Pk8Q-69MWSU
+hakodate|Mount Hakodate|Hakodate|JP|landmark|0|Asia/Tokyo|Famous night view, ropeway, harbor|||s--MDmshT3I
+niseko|Niseko Hanazono|Hokkaido|JP|nature|0|Asia/Tokyo|Powder snow, Mt. Yotei, ski lifts|||1ksmiy6EsDo
+narita|Narita Airport|Narita|JP|airport|1|Asia/Tokyo|Runway A, international arrivals, cargo jumbos|||OuCbntsMsWY
+kansai-airport|Kansai Airport|Osaka|JP|airport|0|Asia/Tokyo|Island airport terminal, Osaka Bay|||1dY5_2BScEE
+takayama|Hida-Takayama|Gifu|JP|street|0|Asia/Tokyo|Edo-era old town, sake breweries, mountains|||dATdZkvpQrI
+kamikochi|Kamikochi Kappa Bridge|Nagano|JP|nature|0|Asia/Tokyo|Alpine river, Hotaka peaks, wooden bridge|||Iv2VUE_UhRQ
+hakone|Lake Ashi & Mt. Fuji|Hakone|JP|nature|0|Asia/Tokyo|Lake Ashi with Fuji rising behind|||maMMEh-2Bsk
+enoshima|Enoshima & Shonan Coast|Kamakura|JP|coast|0|Asia/Tokyo|Shonan surf, Enoshima island, Enoden trains|||VBb-yNFHi2c
+nagoya|Nagoya Station|Nagoya|JP|street|1|Asia/Tokyo|Twin towers, commuters, shinkansen city|||X304dz1zrfU
+sakurajima|Sakurajima Volcano|Kagoshima|JP|nature|0|Asia/Tokyo|Active volcano across the bay, ash plumes|||NfR1Y-mYEtg
+maho-beach|Maho Beach|Sint Maarten|SX|airport|1|America/Lower_Princes|Jets landing just above sunbathers|||2IQmpCXbOmM
+curacao|Mambo Beach|Curaçao|CW|coast|1|America/Curacao|Caribbean beach club, turquoise water|||loHbMM9JfCs
+aruba|Eagle Beach|Aruba|AW|coast|1|America/Aruba|White sand, fofoti trees, sunsets|||_ZXMjk5K0_s
+montreal-airport|Montréal–Trudeau Airport|Montreal|CA|airport|0|America/Toronto|Air Canada jets, snowy runways|||8MPTuJiwpGI
+quebec-port|Port of Québec|Quebec City|CA|coast|0|America/Toronto|St. Lawrence River, ferries, Old Québec|||h_NkY62h7uM
+puerto-vallarta|Los Muertos Beach|Puerto Vallarta|MX|coast|1|America/Mexico_City|Sail-shaped pier, beach umbrellas, sunsets|||xwuuvc86-CI
+assisi|Piazza del Comune|Assisi|IT|landmark|0|Europe/Rome|Temple of Minerva, Umbrian square|||CkNeltsc5ps
+dolomites|Val Gardena Dolomites|South Tyrol|IT|nature|0|Europe/Rome|Jagged peaks, ski runs, alpine villages|||Tbx35fWLy3k
+naples|Gulf of Naples|Naples|IT|coast|1|Europe/Rome|Bay of Naples, ferries, Capri on clear days|||LO2Fvujwc8M
+vesuvius|Mount Vesuvius|Naples|IT|nature|0|Europe/Rome|The volcano that buried Pompeii|||RbI8JwrBZQA
+manarola|Manarola, Cinque Terre|Liguria|IT|coast|0|Europe/Rome|Pastel cliff village, Ligurian sea|||QpqsJKI0Wfk
+malaga-airport|Málaga Airport|Málaga|ES|airport|1|Europe/Madrid|Costa del Sol holiday jets|||A6R81wOlQqs
+las-palmas|Las Palmas Port|Gran Canaria|ES|coast|0|Atlantic/Canary|Cruise ships, ferries, Atlantic swell|||HYAfFvdRvdA
+lanzarote-airport|Lanzarote Airport|Lanzarote|ES|airport|0|Atlantic/Canary|Volcanic island landings by the beach|||4nC8r5neaow
+funchal|Funchal Marina|Madeira|PT|coast|0|Atlantic/Madeira|Harbor, cruise ships, terraced hills|||mZFDQH7J4kE
+albufeira|Albufeira Beach|Algarve|PT|coast|1|Europe/Lisbon|Golden cliffs, fishermen's beach|||GeQVAs9N490
+amsterdam-centraal|Amsterdam Centraal|Amsterdam|NL|street|1|Europe/Amsterdam|Grand station, trains, canal bridges|||FHJH2yMe6Hw
+hamburg-michel|Hamburg from the Michel|Hamburg|DE|landmark|0|Europe/Berlin|Panorama over port, Elbe and rooftops|||OmyDLXvaus4
+sylt|Westerland Beach|Sylt|DE|coast|0|Europe/Berlin|North Sea surf, promenade, beach chairs|||kiOefBj8Ju4
+theresienwiese|Theresienwiese|Munich|DE|landmark|1|Europe/Berlin|Oktoberfest grounds, Bavaria statue|||X-E4YP9RUJI
+lake-zurich|Lake Zurich|Zurich|CH|nature|0|Europe/Zurich|Lake, alpine panorama, sailboats|||3SIwRaLZrZk
+grimentz|Grimentz|Valais|CH|nature|0|Europe/Zurich|Swiss ski village, larch forests, snow|||iCxfe27HpaY
+lucerne|Lucerne|Lucerne|CH|landmark|1|Europe/Zurich|Chapel Bridge, lake, Pilatus|||QIt1FaDMnQc
+weymouth|Weymouth Beach|Dorset|GB|coast|1|Europe/London|Georgian seafront, sandy bay, harbor|||oKHp1joZDMU
+sandown|Sandown|Isle of Wight|GB|coast|0|Europe/London|Esplanade, pier, English Channel|||I0A2zRu1R0Q
+fort-william|Fort William & Loch Linnhe|Highlands|GB|nature|0|Europe/London|Ben Nevis country, sea loch, Highland trains|||2occtpoOu_w
+dublin-bay|Dublin Bay|Dublin|IE|coast|0|Europe/Dublin|Ferries, cargo ships, Poolbeg chimneys|||oxx7MqjhOpw
+brela|Brela Beach|Makarska Riviera|HR|coast|0|Europe/Zagreb|Pine-shaded pebble beach, Brela stone|||hgHEooN8kOI
+kilpisjarvi|Kilpisjärvi Northern Lights|Lapland|FI|nature|0|Europe/Helsinki|Aurora over fells and frozen lake|||ccTVAhJU5lg
+levi|Levi Northern Lights|Lapland|FI|nature|0|Europe/Helsinki|Aurora above the ski resort and forests|||rKfecmmzzw0
+lamai|Lamai Beach|Koh Samui|TH|coast|0|Asia/Bangkok|Palm-lined beach, longtail boats|||Fw9hgttWzIg
+phangan|Koh Phangan|Koh Phangan|TH|coast|0|Asia/Bangkok|Quiet bay, sunsets, island vibes|||MW3fisTCXRQ
+singapore-downtown|Downtown Singapore|Singapore|SG|landmark|1|Asia/Singapore|CBD towers, Marina Bay, tropical storms|||rQ3VvxadJeo
+kalahari|Kalahari Waterhole|Kalahari|NA|wildlife|0|Africa/Windhoek|Springbok, wildebeest, desert sunsets|||ME0dPuBtzug
+kwando|Kwando River|Zambezi Region|NA|wildlife|0|Africa/Windhoek|Elephants, hippos and buffalo at the river|||QL0FuXqD1Fk
+mpala-river|Mpala Hippo River|Laikipia|KE|wildlife|0|Africa/Nairobi|Hippos, crocodiles, elephants at the river|||7x5kRo1B84Y
+clifton|Clifton 4th Beach|Cape Town|ZA|coast|1|Africa/Johannesburg|White sand, granite boulders, Lion's Head|||IGu55JrxyHU
+sydney-harbour|Sydney Harbour Panorama|Sydney|AU|coast|0|Australia/Sydney|Harbour Bridge, ferries, Opera House sails|||jshwkG1ZpP8
+`;
+const HOST = {"times-square": "EarthCam", "brooklyn-bridge": "EarthCam", "statue-of-liberty": "EarthCam", "jackson-town-square": "See Jackson Hole", "golden-gate": "PicturesqueFM", "santa-monica-pier": "explore.org", "lax": "AirlineVideosLive+", "south-beach": "ZeroEight", "bourbon-street": "EarthCam", "nashville-broadway": "On Broadway Nashville", "chicago-river": "EarthCam", "duval-street": "World Live Cams", "waikiki": "Ozolio Live", "kilauea": "U.S. Geological Survey", "yosemite": "Yosemite Live Webcams", "brooks-falls": "explore.org", "fairbanks-aurora": "explore.org", "monterey-kelp": "Monterey Bay Aquarium", "niagara-falls": "EarthCam", "cn-tower": "Toronto CN Tower Live", "canmore-main": "CanmoreAlberta.com", "vancouver-harbour": "Vancouver City Views", "whistler": "GoWhistler", "zocalo": "Webcams de México", "cancun-beach": "Webcams de México TV", "copacabana": "Homes in Rio", "paulista": "Jovem Pan News", "obelisco": "Argentina News", "abbey-road": "EarthCam", "london-bridge": "Beach Life Cams", "heathrow": "Big Jet TV", "royal-mile": "woollyjumperfilms", "loch-ness": "Nessie on the Net", "brighton-marina": "Suite Natured", "temple-bar": "EarthCam", "eiffel-tower": "Webcam Paris Tour Eiffel", "sacre-coeur": "PARIS TV", "saint-gervais": "Domaine Skiable Saint-Gervais", "cannes": "Cannes Webcams", "rialto": "I Love You Venice", "st-marks": "I Love You Venice", "st-peters": "Webcam Italia", "florence-duomo": "Webcam Firenze", "milan-duomo": "Duomo Milano TV", "etna": "afarTV", "lake-como": "Espansione TV", "barcelona-skyline": "Barcelona Directo", "ibiza": "Café del Mar", "tenerife-airport": "LanzaroteWebcam", "lisbon-rooftops": "I love Lx", "porto-ribeira": "Webcamtaxi", "dam-square": "Now4Rent", "damrak": "WebCam.NL", "schiphol": "Gewoonmaarzo", "alexanderplatz": "livespotting", "marienplatz": "LUDWIG BECK", "rhine-falls": "Schaffhauserland Tourism", "hamburg-port": "Hamburg Hafen Live", "jungfraujoch": "Tour-Tips", "austrian-alps": "feratel", "prague-old-town": "CamStreamer", "acropolis": "Window in Athens", "hvar": "Hvar Live", "lyngen-aurora": "Lyngen North", "reykjanes": "Fridriksson", "rovaniemi": "City of Rovaniemi", "bosphorus": "Istanbul Golden Horn Live", "makkah": "Saudi Quran TV", "table-mountain": "Table Mountain Live Stream", "tembe": "Africam", "namib-waterhole": "NamibiaCam", "etosha": "Namibia Wildlife Resorts", "mpala": "explore.org", "kashi-vishwanath": "Live Darshan", "everest": "Webcam Nepal Live", "sukhumvit": "The Real Samui Webcam", "patong": "Randomly Entertained", "marina-bay": "Singapore LiveStreams", "jimbaran": "Bali Weather Live", "bromo": "afarTV", "vinh-tuy": "Ha Noi Live Cam", "victoria-harbour": "Eric Lau", "taipei-101": "Taipei Travel Live Cam", "taipei-streets": "TUI Hz", "the-bund": "Brainrolling Workshop", "shibuya": "FNN Prime Online", "kabukicho": "Kabukicho Live Channel", "akihabara": "Cerevo Live Camera", "tokyo-tower": "Tokyo Tower (official)", "mt-fuji": "Cable TV Kawaguchiko", "dotonbori": "MBS NEWS", "kiyomizu-zaka": "Kyoto Tourism Live", "haneda": "ANNnewsCH", "tanzan-shrine": "Nara TV", "sapporo-odori": "Asahi Shimbun LIVE", "okinawa": "Kariyushi Hotels", "han-river": "Daily Seoul Hangang Live", "seoul-station": "GiGAeyes Live TV", "gyeongbokgung": "GiGAeyes Live TV", "n-seoul-tower": "Hangang Live 365", "haeundae": "Busan Haeundae Live", "seongsan": "GiGAeyes Live TV", "sydney-opera": "Sydney Harbour LIVE", "flinders": "Cityscape Live", "tropical-reef": "explore.org", "caroline-bay": "LiveNZCams", "auckland-harbour": "Auckland City Views", "iss": "NASA", "old-faithful": "National Park Service", "gangmun": "GiGAeyes Live TV", "sokcho": "Sokcho Sea Live", "gwangalli": "Busan Live Cam", "lotte-tower": "GiGAeyes Live TV", "seokchon": "GiGAeyes Live TV", "homigot": "GiGAeyes Live TV", "yeouido": "RIVERWORKER", "hongdae": "Hongdae Live", "busan-port": "Busan Port Cruise Live", "fremont": "Justin Clouse", "key-west-harbor": "PTZtv", "venice-beach": "Venice Vive", "san-diego": "San Diego Web Cam", "huntington": "City of Huntington Beach", "lake-tahoe": "ABC7 News Bay Area", "rainier": "Pierce County TV", "washington-monument": "EarthCam", "boston-harbor": "Boston and Maine Live", "laguardia": "Flightradar24", "midway": "StreamTime Live", "maui": "Ozolio Live", "sitka": "EarthCam", "mendenhall": "explore.org", "telluride": "Alpine Lodging Telluride", "big-bear": "California Live Cams", "decorah": "explore.org", "katmai-river": "explore.org", "st-thomas": "Lime Out", "chicago-lakefront": "Lakefront Live", "lake-hood": "StreamTime Live", "asakusa": "Sensō-ji (official)", "skytree": "Skytree View Live", "shinjuku": "Cross Shinjuku Vision", "ikebukuro": "Sunshine 60-dori Live", "tokyo-station": "Daimaruyu Council", "odaiba": "FNN Prime Online", "yokohama": "Japan Live Camera", "umeda": "Mainichi Shimbun", "nakasu": "Hakata Nakasu Channel", "osaka-castle": "TV Osaka News", "susukino": "SODANE Channel", "miyajima": "Miyajima Tourist Association", "hakodate": "FM Iruka", "niseko": "Hanazono Niseko Resort", "narita": "Asahi Shimbun LIVE", "kansai-airport": "Kantele NEWS", "takayama": "Live Takayama", "kamikochi": "Gosenjaku Hotel", "hakone": "Hakone Turnpike", "enoshima": "Shonan Live Camera", "nagoya": "Starcat", "sakurajima": "Kyodo News LiveCamera", "maho-beach": "Flightradar24", "curacao": "SHOWME Caribbean", "aruba": "SHOWME Caribbean", "montreal-airport": "Moore Equipment", "quebec-port": "Port of Québec", "puerto-vallarta": "El Dorado Restaurant", "assisi": "Umbria Webcam", "dolomites": "Dolomites Val Gardena", "naples": "Paesaggi Digitali", "vesuvius": "Paesaggi Digitali", "manarola": "Paesaggi Digitali", "malaga-airport": "meteo365es", "las-palmas": "WingCam", "lanzarote-airport": "Flightradar24", "funchal": "Madeira-Web", "albufeira": "Webcams Online", "amsterdam-centraal": "ProRail", "hamburg-michel": "livespotting", "sylt": "Surfcam Sylt", "theresienwiese": "Oktoberfest-TV", "lake-zurich": "metacube", "grimentz": "Grimentz Live", "lucerne": "Tele1", "weymouth": "Beach Life Cams", "sandown": "Isle of Wight Webcams", "fort-william": "Scotventure", "dublin-bay": "Dublin Port", "brela": "World Live Cams", "kilpisjarvi": "Starlapland", "levi": "Starlapland", "lamai": "The Real Samui Webcam", "phangan": "Teleport.camera", "singapore-downtown": "SingReef", "kalahari": "NamibiaCam", "kwando": "NamibiaCam", "mpala-river": "explore.org", "clifton": "SA Webcams", "sydney-harbour": "WebcamSydney"};
+const FEATURED = [
+ ["shibuya","35.6595° N","139.7005° E","A moment in <em>Tokyo.</em>","A thousand little stories. One crossing."],
+ ["times-square","40.7580° N","73.9855° W","Meanwhile, in <em>New York.</em>","Neon, yellow cabs and a city that never pauses."],
+ ["st-marks","45.4341° N","12.3388° E","An evening in <em>Venice.</em>","Bell towers, gondolas and water that remembers everything."],
+ ["mt-fuji","35.3606° N","138.7274° E","Say hello to <em>Fuji.</em>","Some mornings, the mountain shows up just for you."],
+ ["brooks-falls","58.5547° N","155.7811° W","Lunchtime in <em>Alaska.</em>","Bears, salmon and a waterfall with perfect timing."],
+ ["eiffel-tower","48.8584° N","2.2945° E","Paris, <em>right now.</em>","The iron lady sparkles on the hour after dark."],
+ ["sydney-opera","33.8568° S","151.2153° E","The harbour <em>hums.</em>","Sails, ferries and sunlight dancing on the water."],
+ ["etosha","19.1800° S","15.9200° E","Waterhole <em>hour.</em>","Elephants, rhinos and lions come to drink in Etosha."],
+ ["gyeongbokgung","37.5796° N","126.9770° E","A palace in <em>Seoul.</em>","Hanbok, guards and mountains behind the gate."],
+ ["acropolis","37.9715° N","23.7257° E","Athens, <em>lit up.</em>","Two and a half thousand years above the city."],
+ ["haeundae","35.1587° N","129.1604° E","Waves in <em>Busan.</em>","A city beach that never really goes to sleep."],
+ ["niagara-falls","43.0779° N","79.0757° W","The roar of <em>Niagara.</em>","Mist, rainbows and a little boat that dares to go close."]
+];
+const LINES = {
+ "times-square":"Yellow taxis, neon billboards and a city that never stands still.",
+ "shibuya":"Watch the beautiful choreography of the world-famous crossing.",
+ "eiffel-tower":"The iron lady, the Seine, and a sparkle every hour after dark.",
+ "st-marks":"A Venetian square where pigeons, music and tides take turns.",
+ "brooks-falls":"Brown bears waiting patiently for salmon to leap into their jaws.",
+ "mt-fuji":"Snow-capped Fuji mirrored in the stillness of Lake Kawaguchi.",
+ "namib-waterhole":"A desert waterhole where oryx, zebra and ostrich drop by.",
+ "etosha":"Elephants, rhinos and the occasional lion after dark.",
+ "abbey-road":"Fans recreating that famous walk, one zebra crossing at a time.",
+ "kabukicho":"Neon gates and late-night Tokyo, glowing until dawn.",
+ "iss":"Earth rolling by at 28,000 km/h, with a sunrise every 90 minutes.",
+ "haeundae":"Busan's city beach, with skyscrapers right behind the sand.",
+ "gyeongbokgung":"The palace gate where guards change and hanbok swirl by.",
+ "jackson-town-square":"Antler arches, wooden boardwalks and the legendary red trucks.",
+ "makkah":"Pilgrims circling the Kaaba, day and night.",
+ "kilauea":"The crater rim of one of the world's most active volcanoes."
+};
+const ARTIFACT_URL = "https://claude.ai/artifact/9u7NHAFiuHvs8V6GUXiVz3";
+
+const COUNTRIES={US:"United States",CA:"Canada",MX:"Mexico",BR:"Brazil",AR:"Argentina",GB:"United Kingdom",IE:"Ireland",FR:"France",IT:"Italy",ES:"Spain",PT:"Portugal",NL:"Netherlands",DE:"Germany",CH:"Switzerland",AT:"Austria",CZ:"Czechia",GR:"Greece",HR:"Croatia",NO:"Norway",IS:"Iceland",FI:"Finland",TR:"Türkiye",SA:"Saudi Arabia",ZA:"South Africa",NA:"Namibia",KE:"Kenya",IN:"India",NP:"Nepal",TH:"Thailand",SG:"Singapore",ID:"Indonesia",VN:"Vietnam",HK:"Hong Kong",TW:"Taiwan",CN:"China",JP:"Japan",KR:"South Korea",AU:"Australia",NZ:"New Zealand",XS:"Orbit",SX:"Sint Maarten",CW:"Curaçao",AW:"Aruba"};
+const CATS={street:{label:"Street life",icon:"street"},landmark:{label:"Landmarks",icon:"landmark"},nature:{label:"Nature",icon:"mountain"},coast:{label:"Beaches",icon:"waves"},wildlife:{label:"Wildlife",icon:"paw"},airport:{label:"Airports",icon:"plane"}};
+const CAT_ORDER=["street","landmark","nature","coast","wildlife","airport"];
+
+const PLACES = RAW.trim().split("\n").map(l=>{
+  const [id,name,city,cc,cat,busy,tz,see,shape,official,yt]=l.split("|");
+  const s=see.split(",").map(x=>x.trim()).filter(Boolean);
+  return {id,name,city,cc,cat,busy:busy==="1",tz,see:s,official:official||"",yt:yt||"",
+    line: LINES[id] || (s.length>2 ? `${s[0]}, ${s[1]} and ${s[2]}.` : s.join(" and ")+".")};
+});
+const BY_ID=Object.fromEntries(PLACES.map(p=>[p.id,p]));
+const USED_CC=[...new Set(PLACES.map(p=>p.cc))].sort((a,b)=>COUNTRIES[a].localeCompare(COUNTRIES[b]));
+const ytSearch=p=>"https://www.youtube.com/results?search_query="+encodeURIComponent(`${p.name} ${p.city} live cam`)+"&sp=EgJAAQ%253D%253D";
+const watchUrl=p=>p.yt?"https://www.youtube.com/watch?v="+p.yt:(p.official||ytSearch(p));
+const img=id=>"photos/"+id+".jpg";
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $=s=>document.querySelector(s);
+const ic=(n,cls="")=>`<svg class="i ${cls}"><use href="#i-${n}"/></svg>`;
+let CREDITS={"brooklyn-bridge": ["Brooklyn Bridge and the Lower Manhattan skyline from Pebble Beach, New York.jpg", "CC BY-SA 4.0", "Christian David"], "statue-of-liberty": ["Front view of Statue of Liberty (cropped).jpg", "CC0", "AskALotl"], "golden-gate": ["Golden Gate Bridge as seen from Battery East.jpg", "CC BY-SA 4.0", "Frank Schulenburg"], "times-square": ["New york times square-terabass.jpg", "CC BY-SA 3.0", "Terabass"], "santa-monica-pier": ["Santa monica pier entrance evening.jpg", "CC BY-SA 2.0", "web4camguy"], "jackson-town-square": ["Downtown Jackson Wyoming USA.JPG", "CC BY-SA 3.0", "Greg Tally"], "south-beach": ["Ocean drive day 2009j.JPG", "CC BY-SA 4.0", "chensiyuan"], "chicago-river": ["Chicago Riverwalk (51556708640).jpg", "CC BY 2.0", "ajay_suresh"], "nashville-broadway": ["Broadway (Nashville) lights.jpg", "CC BY-SA 2.0", "dconvertini"], "lax": ["LAX LA.jpg", "CC BY-SA 2.0", "monkeytime | brachiator"], "duval-street": ["Duval Street.jpg", "Public domain", "Marc Averette"], "bourbon-street": ["Bourbon Street (55148248359).jpg", "CC BY 4.0", "ajay_suresh"], "waikiki": ["City of Waikiki view.jpg", "CC BY-SA 4.0", "Pickle the cool"], "kilauea": ["Episode 4 of Kilauea's December 2024 eruption 2025-01-16.jpg", "Public domain", "USGS/K. Lynn"], "old-faithful": ["Yellowstone National Park (WY, USA), Old Faithful Geyser -- 2022 -- 2599.jpg", "CC BY-SA 4.0", "Dietmar Rabich"], "yosemite": ["Tunnel View, Yosemite Valley, Yosemite NP - Diliff.jpg", "CC BY-SA 3.0", "Diliff"], "fairbanks-aurora": ["Aurora borealis over Eielson Air Force Base, Alaska.jpg", "Public domain", "U.S. Air Force / Senior Airman Joshua Strang"], "brooks-falls": ["Lots and lots of bears at Brooks Falls (cropped).jpg", "Public domain", "NPS/Michael Fitz"], "cn-tower": ["Toronto Islands 2025-05-08.jpg", "CC BY-SA 4.0", "JK Liu"], "monterey-kelp": ["Giantkelp2 300.jpg", "Public domain", "NOAA"], "canmore-main": ["Canmore from Lady MacDonald Teahouse.jpg", "CC BY 3.0", "Daniel Patterson"], "niagara-falls": ["Aerial view of the Canadian Falls (Horseshoe Falls) and the Hornblower Niagara Cruises boat; Niagara Falls.JPG", "CC BY-SA 4.0", "Thomaswm"], "vancouver-harbour": ["Skyline with seaplane - Vancouver, Canada - DSC09323.JPG", "CC0", "Daderot"], "whistler": ["Whistler, British Columbia, Canada (20210396234).jpg", "CC BY-SA 2.0", "Richie Diesterheft"], "cancun-beach": ["Cancun Strand Luftbild (22143397586).jpg", "CC BY 2.0", "dronepicr"], "copacabana": ["Praia de Copacabana - Rio de Janeiro, Brasil.jpg", "CC BY 2.0", "bisonlux"], "zocalo": ["Zócalo, Ciudad de México (32846556446) (cropped).jpg", "CC BY-SA 2.0", "Comisión Mexicana de Filmaciones"], "paulista": ["Vista aérea de la Avenida Paulista de São Paulo 02.jpg", "CC BY-SA 4.0", "ProtoplasmaKid"], "obelisco": ["Panorama Obelisco de Buenos Aires 2019.jpg", "CC BY-SA 2.0", "Luis Santos"], "abbey-road": ["Beatles' zebra crossing on Abbey Road - geograph.org.uk - 6395253.jpg", "CC BY-SA 2.0", "Eirian Evans"], "london-bridge": ["London Bridge from St Olaf Stairs.jpg", "CC BY-SA 4.0", "Jordiferrer"], "heathrow": ["London - Heathrow (LHR - EGLL) AN1572653.jpg", "GFDL 1.2", "Konstantin Von Wedelstaedt"], "royal-mile": ["High Street, Edinburgh.JPG", "CC BY-SA 3.0", "Kim Traynor"], "loch-ness": ["LochNessUrquhart.jpg", "CC BY-SA 2.0", "Sam Fentress"], "brighton-marina": ["Brighton Marina.jpg", "CC BY-SA 4.0", "Barbara van Cleve"], "temple-bar": ["Temple Bar street scenes, Dublin.jpg", "CC BY-SA 2.0", "William Murphy"], "sacre-coeur": ["Le sacre coeur.jpg", "CC BY-SA 3.0", "Tonchino"], "eiffel-tower": ["Tour Eiffel Wikimedia Commons (cropped).jpg", "Public domain", "Benh LIEU SONG"], "saint-gervais": ["00 Saint-Gervais-les-Bains - JPG2.jpg", "CC BY 3.0", "Jean-Pol GRANDMONT"], "cannes": ["Cannes from Suquet Tower 03.jpg", "CC BY-SA 4.0", "Spike"], "rialto": ["Rialto 2025 4.jpg", "CC BY-SA 4.0", "kallerna"], "st-marks": ["Piazza San Marco (Venice) at night-msu-2021-6449-.jpg", "CC BY-SA 4.0", "Matthias Süßen"], "st-peters": ["Basilica di San Pietro in Vaticano September 2015-1a.jpg", "CC BY-SA 4.0", "Alvesgaspar"], "florence-duomo": ["Cattedrale di Santa Maria del Fiore – Il Duomo di Firenze.jpg", "CC BY 2.0", "Gary Campbell-Hall"], "milan-duomo": ["Milan Cathedral from Piazza del Duomo.jpg", "CC BY-SA 3.0", "Jiuguang Wang"], "etna": ["Mt Etna and Catania1.jpg", "CC BY-SA 4.0", "BenAveling"], "lake-como": ["Sentiero del Viandante DSC 6340 (14020554463).jpg", "CC BY-SA 2.0", "Luca Casartelli"], "barcelona-skyline": ["Evening light over Barcelona.jpg", "CC BY 2.0", "M McBey"], "tenerife-airport": ["Flughaveno Tenerifo Suda, 23.jpeg", "CC BY-SA 3.0", "Aisano"], "ibiza": ["Dalt Vila (251472104).jpg", "CC BY 2.0", "Andy Flatman"], "lisbon-rooftops": ["Lisboa - Portugal (52597836992).jpg", "CC BY-SA 2.0", "Vitor Oliveira"], "porto-ribeira": ["Dom Luís I Bridge (36961760686).jpg", "CC BY 2.0", "Deensel"], "dam-square": ["Dam Square 2026.jpg", "CC BY-SA 4.0", "Deerpeter"], "damrak": ["Corona - Empty streets in Amsterdam - Damrak.jpg", "CC BY 4.0", "Hay Kranen"], "schiphol": ["Croatia Airlines A320 landing at Amsterdam Schiphol Airport.jpg", "CC BY-SA 4.0", "Gameplayzz"], "alexanderplatz": ["Berliner Fernsehturm, Sicht vom Neptunbrunnen - Berlin Mitte.jpg", "CC BY-SA 3.0 de", "Christian Wolf"], "marienplatz": ["Rathaus and Marienplatz from Peterskirche - August 2006.jpg", "CC BY-SA 3.0", "Diliff"], "rhine-falls": ["SBB RABe 514 DTZ Rheinfall.jpg", "CC BY-SA 4.0", "Kabelleger / David Gubler"], "hamburg-port": ["Burchardkai-Nacht-(Hamburg)-msu-2021-4873-.jpg", "CC BY-SA 4.0", "Matthias Süßen"], "jungfraujoch": ["Sphinx et Jungfrau - img 06980.jpg", "CC BY-SA 4.0", "Pmau"], "austrian-alps": ["Hallstatt - Zentrum .JPG", "CC BY-SA 4.0", "C.Stadler/Bwag"], "prague-old-town": ["Prague 07-2016 View from Old Town Hall Tower img3.jpg", "FAL", "A.Savin"], "acropolis": ["1029 Acropolis of Athens in Greece at night Photo by Giles Laurent.jpg", "CC BY-SA 4.0", "Giles Laurent"], "hvar": ["The Spanish Fortress in Hvar, Croatia.jpg", "CC BY 2.0", "Steve Jurvetson"], "lyngen-aurora": ["Lyngen.jpg", "Public domain", "Arnejohs"], "reykjanes": ["Fagradalsfjall 194309.jpg", "CC BY 4.0", "Steinninn"], "rovaniemi": ["Santa Claus Village.jpg", "CC BY-SA 4.0", "Floppyjb"], "bosphorus": ["Bosphorus Bridge (1973) in Istanbul.jpg", "CC BY 4.0", "Huseyinakbas63"], "makkah": ["Edited Great Mosque of Mecca1 5-2019-ccsa4.0 (cropped).jpg", "CC BY-SA 4.0", "Saudipics.com"], "table-mountain": ["Table Mountain DanieVDM.jpg", "CC BY 2.0", "Danie van der Merwe"], "namib-waterhole": ["Oryx gazella male 8054.jpg", "FAL", "Alchemist-hp"], "tembe": ["Tembe Elephant Park.jpg", "CC BY-SA 2.0", "pizzodisevo 1937"], "etosha": ["Dust Cloud in Etosha National Park.jpg", "CC BY-SA 3.0", "Yathin S Krishnappa"], "kashi-vishwanath": ["Dasaswamedh ghat-varanasi india-andres larin.jpg", "CC BY-SA 4.0", "Saaremees"], "everest": ["Mt. Everest from Gokyo Ri November 5, 2012.jpg", "CC BY-SA 3.0", "Rdevany"], "mpala": ["Two Giraffes.PNG", "CC BY-SA 2.0", "Brandt Luke Zorn family"], "sukhumvit": ["4Y1A1159 Bangkok (33536795515).jpg", "CC BY 2.0", "Ninara"], "patong": ["Patong Beach.jpg", "CC BY-SA 3.0", "Wikimedia Commons contributor"], "marina-bay": ["Marina Bay Sands (I).jpg", "CC BY 4.0", "Supanut Arunoprayote"], "jimbaran": ["Jimbaran200507-1.jpg", "CC BY-SA 3.0", "Wikimedia Commons contributor"], "bromo": ["Bromo-Semeru-Batok-Widodaren.jpg", "CC BY 2.0", "Riza Nugraha"], "vinh-tuy": ["Cầu Vĩnh Tuy và sông Hồng.jpg", "CC BY 2.0", "Bem photography"], "taipei-101": ["Taipei Skyline 2022.06.29.jpg", "CC BY-SA 2.0", "毛貓大少爺"], "victoria-harbour": ["International Commerce Centre on Victoria Harbour.jpg", "CC0", "Wilfredor"], "taipei-streets": ["從屈臣氏西門門市到錢櫃台北中華新館 20211204.jpg", "CC BY-SA 4.0", "Mrmarkertw"], "the-bund": ["The Bund 2.jpg", "CC BY-SA 4.0", "钉钉"], "shibuya": ["Shibuya Crossing, Aerial.jpg", "CC BY 4.0", "David Kernan"], "kabukicho": ["Kabukicho red gate and colorful neon street signs at night, Shinjuku, Tokyo, Japan.jpg", "CC BY-SA 4.0", "Basile Morin"], "mt-fuji": ["View of Mount Fuji from Ōwakudani 20211202.jpg", "CC BY-SA 4.0", "Suicasmo"], "tokyo-tower": ["Tokyo Tower 2023.jpg", "CC BY-SA 4.0", "Akonnchiroll"], "akihabara": ["Sotokanda, Akihabara Electric Town at night 20231114.png", "CC0", "Phineyes"], "dotonbori": ["Osaka Dotonbori Ebisu Bridge.jpg", "CC BY-SA 3.0", "Type specimen"], "kiyomizu-zaka": ["Kiyomizu.jpg", "CC BY-SA 3.0", "Jordy Meow"], "haneda": ["All haneda.jpg", "CC BY 4.0", "ブルーノ・プラス"], "okinawa": ["Okinawa kerama islands.jpg", "CC BY-SA 4.0", "Paipateroma"], "sapporo-odori": ["Hokkaido Sapporo Odori Park.jpg", "CC BY-SA 3.0", "Nkns"], "tanzan-shrine": ["TanzanJinja.JPG", "CC BY-SA 3.0", "Outside147"], "han-river": ["2011년 11월 대한민국 서울특별시 명소 (Seoul best attractions) 달빛무지개분수1.jpg", "Public domain", "Seoul Metropolitan Fire & Disaster HQ"], "gyeongbokgung": ["광화문 월대.jpg", "KOGL Type 1", "Seoul Tourism Archive"], "seoul-station": ["Seoul-station-20181122-072342.jpg", "CC BY-SA 4.0", "LERK"], "n-seoul-tower": ["NamsanTower (Cropped).jpeg", "CC BY-SA 3.0", "EasyKL"], "haeundae": ["Haeundae Beach May 2024.jpg", "CC BY-SA 4.0", "Brit in Seoul"], "seongsan": ["Seongsan Ilchulbong from the air.jpg", "CC BY-SA 2.0", "Korea.net / KOCIS"], "sydney-opera": ["Sydney Opera House 2026.jpg", "CC BY-SA 4.0", "BAVhah"], "flinders": ["Flinders Station and trams.jpg", "CC BY-SA 3.0", "Philip Mallis / HappyWaldo"], "caroline-bay": ["Timaru-Stafford.St.jpg", "Public domain", "Thomei08"], "tropical-reef": ["Underwater World.jpg", "CC BY-SA 3.0", "Fascinating Universe"], "auckland-harbour": ["AucklandHarbourBridge.jpg", "CC BY-SA 2.0", "Wikimedia Commons contributor"], "iss": ["The station pictured from the SpaceX Crew Dragon 5.jpg", "Public domain", "NASA"], "gangmun": ["Jumunjin Lighthouse 20220501 026.jpg", "CC BY-SA 4.0", "Mobius6"], "sokcho": ["Geumgang Bridge, Sokcho 02.jpg", "CC0", "Bernard Gagnon"], "gwangalli": ["Gwangalli Beach.jpg", "CC BY 2.0", "Chelsea Hicks"], "seokchon": ["Lotte World day view 10.jpg", "CC BY-SA 4.0", "kallerna"], "homigot": ["Homigot Lighthouse from New Millennium Memorial Hall.jpg", "CC BY-SA 2.0", "Paul Bailey from Uijeongbu, Republic of Korea"], "lotte-tower": ["Lotte World Tower day view 10.jpg", "CC-BY-SA-4.0", "kallerna"], "yeouido": ["Yeouido2025.jpg", "CC BY 4.0", "Kimhs5400"], "busan-port": ["Busan-port-from-Busan-tower-2.jpg", "CC BY-SA 3.0", "Bergmann from jawp"], "fremont": ["LasVegas-FremontStreet.jpg", "CC BY 3.0", "Jean-Christophe BENOIST"], "hongdae": ["Hongdae, Seoul- Part II - Hongdae2237.jpg", "CC0", "lumoplank"], "venice-beach": ["Venice Beach, Los Angeles, CA 01.jpg", "CC0", "Blake Everett"], "key-west-harbor": ["Mallory Square, Key West, Florida.JPG", "PD", "Wikimedia Commons contributor"], "lake-tahoe": ["Tahoe North Shore from the East Shore.jpg", "CC BY 2.0", "Lara Farhadi"], "san-diego": ["Pacific Beach, San Diego.jpg", "CC BY-SA 4.0", "Krithika Saravanan"], "rainier": ["Rainier20200906.jpg", "CC0", "Caleb Riston"], "huntington": ["Ruby's, Huntington Beach pier, California.jpg", "CC BY-SA 4.0", "Photograph by Mike Peel (www.mikepeel.net)."], "washington-monument": ["Washington Monument 2022.jpg", "CC BY-SA 4.0", "Greyfiveys"], "boston-harbor": ["Boston skyline from East Boston November 2016 panorama 1.jpg", "CC BY-SA 4.0", "King of Hearts"], "midway": ["Midway Airport Airfield.jpg", "CC BY-SA 3.0", "The original uploader was Sox23 at English Wikiped"], "laguardia": ["LaGuardia Airport - Piedmont - US Airways - JetBlue.jpg", "CC BY-SA 4.0", "Ptrump16"], "sitka": ["Sitka 84 Elev 135.jpg", "CC BY-SA 4.0", "Gillfoto"], "maui": ["Kaanapali Beach Maui.jpg", "CC BY-SA 4.0", "John P Salvatore"], "mendenhall": ["Mendenhall Glacier (Winter).jpg", "CC BY-SA 3.0", "Wikimedia Commons contributor"], "telluride": ["Telluride Colorado.jpg", "CC BY-SA 3.0", "Fitchhollister"], "big-bear": ["Big Bear Lake1.jpg", "CC BY-SA 3.0", "H.G. Judd"], "decorah": ["Bald eagle about to fly in Alaska (2016).jpg", "CC BY 2.0", "Andy Morffew from Itchen Abbas, Hampshire, UK"], "st-thomas": ["View of St. Thomas.jpg", "CC BY-SA 3.0", "Sunil Pereira"], "katmai-river": ["Riffles area of Brooks River (16250609499).jpg", "Public domain", "Katmai National Park and Preserve"], "chicago-lakefront": ["Navy Pier 1190x1585 (cropped).jpg", "CC BY-SA 4.0", "Hbodine"], "lake-hood": ["LakesHoodAndSpenard.jpg", "CC BY-SA 3.0", "Christy747"], "asakusa": ["Sensoji 2023.jpg", "CC0", "Akonnchiroll"], "skytree": ["Tokyo Skytree 2014 Ⅲ.jpg", "CC BY-SA 3.0", "Kakidai"], "shinjuku": ["JRE Shinjuku-STA South.jpg", "CC BY-SA 4.0", "MaedaAkihiko"], "ikebukuro": ["Sunshine 60 Observatory @ Sunshine Building @ Ikebukuro (11547419543).jpg", "CC BY 2.0", "Guilhem Vellut from Annecy, France"], "tokyo-station": ["Tokyo-STA Marunouchi-Entrance 2023.jpg", "CC BY-SA 4.0", "MaedaAkihiko"], "odaiba": ["Rainbow Bridge (Tokyo) at night 8.jpg", "CC BY-SA 4.0", "Kakidai"], "yokohama": ["Minato Mirai In Blue.jpg", "CC BY 2.0", "akumach from Kawasaki City, Japan"], "umeda": ["Osaka Umeda Sky Building Panoramablick 05.jpg", "CC BY-SA 4.0", "Zairon"], "nakasu": ["Fukuhaku Deai Bridge Nakasu Hakata-ku Nishi-nakasu Hakata-ku Fukuoka City 20221129.jpg", "CC BY-SA 4.0", "Hirho"], "osaka-castle": ["Osaka Castle 03bs3200.jpg", "CC BY 2.5", "663highland"], "susukino": ["Spectaculars of Susukino-Sapporo.jpg", "Public domain", "Chatama"], "miyajima": ["Itsukushima Shrine Torii Gate (13890465459).jpg", "CC BY-SA 2.0", "redlegsfan21"], "hakodate": ["Kanemori Red Brick Warehouse Hakodate Hokkaido pref Japan01n.jpg", "CC BY 2.5", "663highland"], "niseko": ["ニセコ東山スキー場2.JPG", "CC BY-SA 3.0", "Wakimasa"], "narita": ["Narita Nemzetközi Repülőtér.jpg", "CC BY-SA 4.0", "Petra.G09"], "kansai-airport": ["関西国際空港全体写真20220811.jpg", "CC BY-SA 4.0", "Ankou1192"], "kamikochi": ["Kamikochi - Kamikochi6538.jpg", "CC0", "lumoplank"], "takayama": ["Takayama's Early Winter Welcome (NE).jpg", "CC BY-SA 3.0", "Nickaura (Nick Sevarg)"], "hakone": ["260505 Moto-Hakone Hakone Japan01s3.jpg", "CC BY-SA 4.0", "663highland"], "nagoya": ["Nagoya Station 2026.jpg", "CC0", "加茂川の民"], "sakurajima": ["Sakurajima55.jpg", "CC BY 3.0", "TANAKA Juuyoh (talk)"], "maho-beach": ["Corsair Airbus A330 at SXM Bidini.jpg", "GFDL 1.2", "Aldo Bidini"], "aruba": ["Mangrove tree (Conocarpus erectus) at Eagle Beach, Aruba 2019.jpg", "CC BY-SA 4.0", "SIryn"], "montreal-airport": ["Aircraft at Montréal-Pierre Elliott Trudeau International Airport July 2022 (5).jpg", "CC0", "Benoît Prieur"], "quebec-port": ["Château Frontenac 02.jpg", "CC BY-SA 4.0", "Bernard Gagnon"], "assisi": ["AssisiDec122023 03.jpg", "CC BY-SA 4.0", "Hagai Agmon-Snir حچاي اچمون-سنير חגי אגמון-שניר"], "puerto-vallarta": ["Collage Puerto Vallarta.jpg", "CC BY-SA 4.0", "Microstar"], "dolomites": ["Val Gardena.jpg", "CC BY-SA 3.0", "Dmitry A. Mottl"], "naples": ["Napoli - Maschio Angioino - 202209302342 3.jpg", "CC BY-SA 4.0", "Richard Nevell"], "vesuvius": ["Il cratere del Vulcano - panoramio.jpg", "CC BY 3.0", "pietro scerrato"], "manarola": ["Manarola NW Cinque Terre Sep23 A7C 07233.jpg", "CC BY-SA 4.0", "This Photo was taken by Timothy A. Gonsalves.  Fee"], "las-palmas": ["Canteras EM1B2907 (40642755393).jpg", "CC BY 2.0", "Bengt Nyman from Vaxholm, Sweden"], "lanzarote-airport": ["Arrecife-Airport.jpg", "CC BY-SA 3.0", "Frank Härtelt"], "funchal": ["Funchal, Jardins da Quinta Vigia (lookout).jpg", "CC BY-SA 4.0", "Dr. Thomas Liptak"], "malaga-airport": ["Malaga (AGP - LEMG) AN1863602.jpg", "GFDL 1.2", "Javier Bravo Muñoz"], "albufeira": ["Albufeira (Portugal) (10311600764).jpg", "CC BY 2.0", "Jose A."], "amsterdam-centraal": ["Amsterdam Centraal 2016-09-13.jpg", "CC BY-SA 4.0", "Slaunger"], "sylt": ["2002-08 Westerland Sundown.jpg", "CC BY 1.0", "Magnus Manske"], "hamburg-michel": ["Hamburg-Michaeliskirche-Hafen.jpg", "CC BY-SA 3.0", "Wikimedia Commons contributor"], "theresienwiese": ["Wiesn2006 Luftaufnahme.jpg", "CC BY-SA 2.5", "Stefan Weigel"], "lake-zurich": ["Pfannenstiel - Zürichsee - Sihltal - Albis Baldern IMG 5316.jpg", "CC BY-SA 3.0", "Roland zh"], "grimentz": ["Grimentz - août 2022.jpg", "CC BY-SA 4.0", "Christian David"], "lucerne": ["Kapellbruecke.JPG", "CC BY-SA 2.5", "Simon Koopmann"], "weymouth": ["Weymouth Harbour and Bay.jpg", "CC BY-SA 4.0", "Murgatroyd49"], "sandown": ["South Wight , Sandown Scenery - geograph.org.uk - 2886057.jpg", "CC BY-SA 2.0", "Lewis Clarke"], "fort-william": ["Fort William, Caol and Loch Linnhe, Scottish Highlands - geograph.org.uk - 6234660.jpg", "CC BY-SA 2.0", "Andrew Tryon"], "dublin-bay": ["DublinPort.jpg", "CC BY-SA 3.0", "Niels Johannes"], "brela": ["Brela BW 2024-10-04 15-43-18.jpg", "CC BY-SA 4.0", "Berthold Werner"], "kilpisjarvi": ["Saana 3.jpg", "CC BY-SA 4.0", "kallerna"], "levi": ["Levi - panoramio.jpg", "CC BY-SA 3.0", "Oleg Krivolapov"], "phangan": ["Koh Phangan01.jpg", "CC BY-SA 3.0", "Manfred Werner (User:Tsui"], "singapore-downtown": ["Marina Bay Singapore-3499.jpg", "CC BY-SA 4.0", "Bijay Chaurasia"], "lamai": ["Thailand Koh Samui Lamai beach High street.jpg", "CC BY-SA 3.0", "No machine-readable author provided. Toeffie~commo"], "kalahari": ["Kalahari.png", "Public domain", "Emilfarb at English Wikipedia"], "kwando": ["Chobe River at Kasane.jpg", "CC BY-SA 4.0", "Dicklyon"], "mpala-river": ["Portrait Hippopotamus in the water.jpg", "CC BY-SA 4.0", "Muhammad Mahdi Karim"], "sydney-harbour": ["Sydney Harbour Bridge-16 October 2025.jpg", "CC0", "Servite et contribuere"], "clifton": ["Clifton Beachs.jpg", "CC BY-SA 4.0", "SkyPixels"], "enoshima": ["Harbor, Enoshima Island 20130809.jpg", "CC BY-SA 3.0", "DXR"]};
+
+/* time */
+const fmt={};
+function localTime(tz){try{return (fmt[tz]||(fmt[tz]=new Intl.DateTimeFormat("en-US",{timeZone:tz,hour:"numeric",minute:"2-digit"}))).format(new Date());}catch(e){return "";}}
+function localHour(tz){try{return +new Intl.DateTimeFormat("en-US",{timeZone:tz,hour:"numeric",hour12:false}).format(new Date())%24;}catch(e){return 12;}}
+const partOfDay=tz=>{const h=localHour(tz);return h<5?"night":h<8?"early morning":h<12?"morning":h<17?"afternoon":h<20?"evening":"night";};
+
+/* state */
+const S={sort:"featured",view:"explore",q:"",cat:"all",cc:"all",group:"none",open:null,tab:"room",hero:0};
+let saved=new Set();try{saved=new Set(JSON.parse(localStorage.getItem("el_saved")||"[]"));}catch(e){}
+const saveFavs=()=>{try{localStorage.setItem("el_saved",JSON.stringify([...saved]));}catch(e){}};
+const LIKES={docs:new Map()};
+function likeCount(id){let n=0;for(const [u,d] of LIKES.docs){if(u===SOC.uid)continue;if((d.ids||[]).includes(id))n++;}return n+(saved.has(id)?1:0);}
+async function syncLike(){if(SOC.mode!=="shared"||!SOC.db||!SOC.uid||SOC.likeWriteOff)return;try{await queue(()=>SOC.db.doc("likes/"+SOC.uid).set({ids:[...saved].slice(0,500)}));}catch(e){if(e&&e.code==="invalid_argument")SOC.likeWriteOff=true;}}
+const ADJ=["Coastal","Quiet","Wandering","Golden","Misty","Curious","Sunny","Velvet","Northern","Drifting","Gentle","Lunar","Amber","Alpine","Harbor","Midnight"];
+const NOUN=["Traveler","Wanderer","Explorer","Drifter","Dreamer","Rover","Voyager","Nomad"];
+const genHandle=()=>ADJ[Math.random()*ADJ.length|0]+" "+NOUN[Math.random()*NOUN.length|0]+" "+Math.random().toString(16).slice(2,6);
+let HANDLE=(()=>{try{return localStorage.getItem("el_handle")||(h=>{localStorage.setItem("el_handle",h);return h;})(genHandle());}catch(e){return genHandle();}})();
+const hue=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return h;};
+const av=h=>`<div class="av" style="background:hsl(${hue(h)} 30% 88%)">${esc(h[0]||"?")}</div>`;
+
+/* ===================== social (comments + live room) ===================== */
+const SOC={mode:"connecting",db:null,room:null,user:null,uid:null,owner:false,canWrite:true,canChat:true,comments:new Map(),reports:new Map(),here:{},chatRoom:null,chatLog:{},lastSend:0,muted:new Set(),hidden:new Set(),chatPeers:0};
+try{JSON.parse(localStorage.getItem("el_hidden")||"[]").forEach(x=>SOC.hidden.add(x));}catch(e){}
+const commentsFor=pid=>{const o=[];for(const [uid,d] of SOC.comments)(d.items||[]).forEach(it=>{if(it.pid===pid&&!SOC.hidden.has(uid+":"+it.id))o.push({...it,uid});});return o.sort((a,b)=>b.ts-a.ts);};
+const commentCount=pid=>{let n=0;for(const [,d] of SOC.comments)(d.items||[]).forEach(it=>{if(it.pid===pid)n++;});return n;};
+let wq=Promise.resolve();const queue=fn=>(wq=wq.then(fn,fn));
+const BAD=/\b(fuck\w*|shit\w*|bitch\w*|cunt\w*|nigg\w*|fagg?ot\w*|retard\w*|whore\w*|slut\w*)\b/gi;
+const clean=t=>t.replace(BAD,m=>m[0]+"•".repeat(m.length-1));
+function check(t){
+  if(!t.trim())return "Write something first.";
+  if(t.length>400)return "Keep it under 400 characters.";
+  if(/https?:\/\/|www\.|\.(com|net|org|io|ly)\b/i.test(t))return "Links aren't allowed — keep it about the view.";
+  if(/[\w.+-]+@[\w-]+\.[\w.]+/.test(t))return "Please don't share email addresses.";
+  if(/(\+?\d[\d\s().-]{8,}\d)/.test(t))return "Please don't share phone numbers.";
+  return null;
+}
+async function initSocial(){
+  if(!window.claude||typeof window.claude.use!=="function"){SOC.mode="local";loadLocal();refresh();return;}
+  try{
+    const [db,room,user]=await Promise.all([claude.use("db"),claude.use("room"),claude.use("user")]);
+    SOC.db=db;SOC.room=room;SOC.user=user;
+    if(user){try{SOC.uid=await user.id();}catch(e){}try{SOC.owner=!!(await Promise.resolve(user.isOwner()));}catch(e){}try{const c=await Promise.resolve(user.can("data.write"));if(c===false)SOC.canWrite=false;}catch(e){}}
+    SOC.mode=db?"shared":"local"; if(!db)loadLocal();
+    if(db){
+      const t=setTimeout(()=>{SOC.slow=true;refreshModal();},10000);
+      db.collection("reactions").onSnapshot(s=>{RX.docs=new Map(s.docs.filter(d=>d.exists).map(d=>[d.id,d.data()]));const mine=RX.docs.get(SOC.uid);
+        if(mine&&!SOC.rxMerged){SOC.rxMerged=true;RX.mine=Object.assign({},RX.mine,mine.m||{});syncReact();}else if(!mine&&!SOC.rxMerged){SOC.rxMerged=true;if(Object.keys(RX.mine).length)syncReact();}paintReacts();},()=>{});
+      db.collection("likes").onSnapshot(s=>{LIKES.docs=new Map(s.docs.filter(d=>d.exists).map(d=>[d.id,d.data()]));const mine=LIKES.docs.get(SOC.uid);
+        if(mine&&!SOC.likesMerged){SOC.likesMerged=true;const before=saved.size;(mine.ids||[]).forEach(i=>saved.add(i));saveFavs();if(saved.size!==before||(mine.ids||[]).length!==saved.size)syncLike();}
+        else if(!mine&&!SOC.likesMerged){SOC.likesMerged=true;if(saved.size)syncLike();}
+        refreshLikes();if(S.sort==="loved"&&!S.open)render();},()=>{});
+      db.collection("comments").onSnapshot(s=>{clearTimeout(t);SOC.slow=false;SOC.comments=new Map(s.docs.filter(d=>d.exists).map(d=>[d.id,d.data()]));refresh();},e=>{clearTimeout(t);refreshModal();});
+      if(SOC.owner)db.collection("reports").onSnapshot(s=>{SOC.reports=new Map(s.docs.filter(d=>d.exists).map(d=>[d.id,d.data()]));},()=>{});
+    }
+    if(room){
+      room.onPeers(ch=>{const h={};ch.peers.forEach(p=>{const pid=p.presence&&p.presence.pid;if(typeof pid==="string"&&BY_ID[pid])h[pid]=(h[pid]||0)+1;});SOC.here=h;SOC.online=ch.peers.length;refreshCounts();refreshHere();},()=>{});
+      room.presence({pid:S.open||null}).catch(()=>{});
+    }
+  }catch(e){SOC.mode="local";loadLocal();}
+  refresh();
+}
+function loadLocal(){try{const d=JSON.parse(localStorage.getItem("el_local")||"null");if(d)SOC.comments=new Map([["me",d]]);}catch(e){}SOC.uid=SOC.uid||"me";}
+const myDoc=()=>SOC.comments.get(SOC.uid)||{items:[]};
+async function postComment(pid,text){
+  const err=check(text);if(err){toast(err);return false;}
+  const item={id:Math.random().toString(36).slice(2,10),pid,text:clean(text.trim()),ts:Date.now(),h:HANDLE};
+  const next={items:[...(myDoc().items||[]),item].slice(-150)};
+  if(SOC.mode!=="shared"){SOC.comments.set(SOC.uid,next);try{localStorage.setItem("el_local",JSON.stringify(next));}catch(e){}refresh();return true;}
+  if(!SOC.uid){toast("Sign in to post.");return false;}
+  try{await queue(()=>SOC.db.doc("comments/"+SOC.uid).set(next));return true;}
+  catch(e){if(e&&e.code==="invalid_argument"){SOC.canWrite=false;refreshModal();toast("You can read comments, but posting needs Contributor access from the owner.");}else toast("Couldn't post — try again.");return false;}
+}
+async function delComment(uid,cid){
+  const d=SOC.comments.get(uid);if(!d)return;const next={items:(d.items||[]).filter(i=>i.id!==cid)};
+  if(SOC.mode!=="shared"){SOC.comments.set(uid,next);try{localStorage.setItem("el_local",JSON.stringify(next));}catch(e){}refresh();return;}
+  try{await queue(()=>SOC.db.doc("comments/"+uid).set(next));toast("Deleted");}catch(e){toast("Couldn't delete.");}
+}
+async function report(kind,pid,uid,cid,text,reason){
+  SOC.hidden.add((uid||"chat")+":"+(cid||text.slice(0,20)));try{localStorage.setItem("el_hidden",JSON.stringify([...SOC.hidden]));}catch(e){}
+  if(kind==="chat"&&uid)SOC.muted.add(uid);
+  if(SOC.mode==="shared"&&SOC.uid){try{const ref=SOC.db.doc("reports/"+SOC.uid);const cur=await ref.get();const items=[...((cur.exists&&cur.data().items)||[]),{kind,pid,uid:uid||null,cid:cid||null,text:String(text).slice(0,200),reason,ts:Date.now()}].slice(-60);await queue(()=>ref.set({items}));}catch(e){}}
+  toast("Thanks — reported and hidden for you.");refreshModal();
+}
+async function joinChat(pid){
+  leaveChat();SOC.chatLog[pid]=SOC.chatLog[pid]||[];
+  if(!SOC.room)return;
+  try{
+    const r=await SOC.room.join("cam-"+pid);
+    if(S.open!==pid){r.leave();return;}
+    SOC.chatRoom=r;
+    r.on("chat",m=>{const d=m.data||{};if(typeof d.t!=="string")return;if(SOC.muted.has(m.by||m.peer))return;
+      SOC.chatLog[pid].push({t:clean(d.t.slice(0,300)),h:String(d.h||"Traveler").slice(0,32),mine:m.isMe,by:m.by||m.peer,ts:Date.now()});
+      if(SOC.chatLog[pid].length>200)SOC.chatLog[pid].shift();if(S.tab==="room")renderFeed(true);});
+    r.on("react",m=>{const e=m.data&&m.data.e;if(REACTS.includes(e))floaty(e,m.isMe);});
+    r.onPeers(ch=>{SOC.chatPeers=ch.peers.length;refreshHere();});
+    refreshModal();
+  }catch(e){SOC.chatErr=e&&e.code;refreshModal();}
+}
+function leaveChat(){if(SOC.chatRoom){try{SOC.chatRoom.leave();}catch(e){}SOC.chatRoom=null;SOC.chatPeers=0;}}
+async function sendChat(pid,text){
+  const err=check(text);if(err){toast(err);return false;}
+  if(Date.now()-SOC.lastSend<1500){toast("Slow down a little.");return false;}
+  SOC.lastSend=Date.now();
+  if(!SOC.chatRoom){SOC.chatLog[pid].push({t:clean(text.trim()),h:HANDLE,mine:true,ts:Date.now()});renderFeed(true);return true;}
+  try{await SOC.chatRoom.emit("chat",{t:text.trim().slice(0,300),h:HANDLE});return true;}
+  catch(e){if(e&&e.code==="not_permitted"){SOC.canChat=false;refreshModal();toast("The live room is read-only for your access level.");}else toast("Message didn't send.");return false;}
+}
+const REACTS=["👋","😍","🔥","🌅","🌧️","😂"];
+const RX={docs:new Map(),mine:{}};
+try{RX.mine=JSON.parse(localStorage.getItem("el_react")||"{}");}catch(e){}
+function rxCounts(pid){const c={};for(const [u,d] of RX.docs){if(u===SOC.uid)continue;const e=(d.m||{})[pid];if(e)c[e]=(c[e]||0)+1;}const me=RX.mine[pid];if(me)c[me]=(c[me]||0)+1;return c;}
+async function syncReact(){try{localStorage.setItem("el_react",JSON.stringify(RX.mine));}catch(e){}
+  if(SOC.mode!=="shared"||!SOC.db||!SOC.uid)return;try{await queue(()=>SOC.db.doc("reactions/"+SOC.uid).set({m:RX.mine}));}catch(e){}}
+function paintReacts(){if(!S.open)return;const c=rxCounts(S.open),me=RX.mine[S.open];document.querySelectorAll("[data-react]").forEach(b=>{const e=b.dataset.react;b.classList.toggle("mine",me===e);b.classList.toggle("off",!!me&&me!==e);const r=b.querySelector(".rc");if(r)r.textContent=c[e]||"";});const h=$(".rhint");if(h)h.textContent=me?`You reacted ${me} · one reaction per place`:`Pick one reaction for ${BY_ID[S.open].city} — everyone watching sees it float up.`;}
+const RCOUNT={};
+function floaty(e,mine){const layer=$("#burst");if(!layer)return;for(let i=0;i<(mine?5:3);i++){const el=document.createElement("div");el.className="floaty";el.textContent=e;el.style.left=(8+Math.random()*80)+"%";el.style.animationDelay=(i*0.12)+"s";el.style.fontSize=(26+Math.random()*16)+"px";layer.appendChild(el);setTimeout(()=>el.remove(),3200);}
+  }
+
+/* ===================== rendering ===================== */
+function filtered(){
+  const l=filterOnly();
+  if(S.sort==="loved")return l.map((p,i)=>[p,likeCount(p.id),i]).sort((a,b)=>b[1]-a[1]||a[2]-b[2]).map(x=>x[0]);
+  if(S.sort==="az")return [...l].sort((a,b)=>a.name.localeCompare(b.name));
+  if(S.sort==="night")return [...l].sort((a,b)=>Math.abs(12-((localHour(b.tz)+12)%24))-Math.abs(12-((localHour(a.tz)+12)%24)));
+  return l;
+}
+function filterOnly(){
+  const w=S.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  return PLACES.filter(p=>{
+    if(S.view==="saved"&&!saved.has(p.id))return false;
+    if(S.cat!=="all"&&p.cat!==S.cat)return false;
+    if(S.cc!=="all"&&p.cc!==S.cc)return false;
+    if(!w.length)return true;
+    const hay=[p.name,p.city,COUNTRIES[p.cc],CATS[p.cat].label,p.see.join(" "),p.line,p.busy?"busy crowds people crowded":"",HOST[p.id]||""].join(" ").toLowerCase();
+    return w.every(x=>hay.includes(x));
+  });
+}
+function photo(id,alt,cls=""){return `<img class="${cls}" src="${img(id)}" alt="${esc(alt)}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">`;}
+function card(p){
+  return `<article class="card" data-open="${p.id}" tabindex="0">
+    <div class="ph">${photo(p.id,p.name)}<span class="lv"><span class="dot"></span>LIVE</span></div>
+    <div class="cb">
+      <div class="loc"><code>${p.cc==="XS"?"":p.cc}</code>${esc(p.city)} · ${esc(COUNTRIES[p.cc])}</div>
+      <h5>${esc(p.name)}</h5>
+      <p>${esc(p.line)}</p>
+      <div class="cf"><span>${ic(CATS[p.cat].icon)}<span data-clock="${p.tz}">${localTime(p.tz)}</span>${p.busy?` <span class="busy">· Busy</span>`:""}</span>
+        <a class="go" href="${esc(watchUrl(p))}" target="_blank" rel="noopener noreferrer">${ic("play")}Live</a></div>
+      <div class="room" data-meta="${p.id}">${meta(p.id)}</div>
+    </div>
+    <button class="heart ${saved.has(p.id)?"on":""}" data-fav="${p.id}" aria-label="Save">${ic("heart")}<span class="lc" data-lc="${p.id}">${likeCount(p.id)||""}</span></button>
+  </article>`;
+}
+function meta(id){const n=commentCount(id),h=SOC.here[id]||0;return h||n?`${ic("chat")}${h?`<b>${h} watching</b>`:""}${h&&n?" · ":""}${n?`${n} comment${n>1?"s":""}`:""}`:"";}
+
+function renderHero(){
+  return `<div class="hero" id="hero">${FEATURED.map(([id],i)=>`<div class="slide ${i===S.hero?"on":""}">${photo(id,BY_ID[id].name)}</div>`).join("")}
+    <span class="chip-glass tl"><span class="dot" style="background:#9be3b7"></span>The world is still moving</span>
+    <span class="chip-glass tr">Destination photo · not a live frame</span>
+    <div class="hero-txt" id="heroTxt"></div>
+    <div class="br"><div class="count" id="heroCount"></div><div class="where" id="heroWhere"></div>
+      <div class="dots">${FEATURED.map((_,i)=>`<button data-hero="${i}" class="${i===S.hero?"on":""}" aria-label="Slide ${i+1}"></button>`).join("")}</div></div>
+  </div>`;
+}
+function paintHero(){
+  const [id,lat,lon,h,sub]=FEATURED[S.hero];const p=BY_ID[id];
+  document.querySelectorAll("#hero .slide").forEach((s,i)=>s.classList.toggle("on",i===S.hero));
+  document.querySelectorAll("#hero .dots button").forEach((s,i)=>s.classList.toggle("on",i===S.hero));
+  const t=$("#heroTxt");if(!t)return;
+  t.innerHTML=`<div class="coords">${lat}&nbsp;&nbsp;&nbsp;${lon}</div><h2>${h}</h2><p>${sub} <span class="lt" style="opacity:.7">· ${localTime(p.tz)} local</span></p>
+    <button class="btn white" data-open="${id}">Explore ${ic("arrow")}</button>`;
+  $("#heroCount").innerHTML=`${String(S.hero+1).padStart(2,"0")} <small>/ ${FEATURED.length}</small>`;
+  $("#heroWhere").innerHTML=`${ic("pin")}${esc(p.name)}, ${esc(COUNTRIES[p.cc])}`;
+}
+let heroTimer;function startHero(){clearInterval(heroTimer);heroTimer=setInterval(()=>{if(document.hidden||S.open)return;S.hero=(S.hero+1)%FEATURED.length;paintHero();},6500);}
+
+function renderMain(){
+  const list=filtered();
+  const isSaved=S.view==="saved";
+  let h=`<div class="head"><div><div class="eyebrow">${isSaved?"Your collection":"A window to somewhere else"}</div>
+    <h1>${isSaved?"Places you <em>love.</em>":"Where shall we go <em>today?</em>"}</h1>
+    <p>${isSaved?"Your saved windows, ready whenever you need a moment away.":"Wander through city streets, wild places and everything in between."}</p></div>
+    <button class="btn line" data-surprise>${ic("shuffle")}Surprise me</button></div>`;
+  if(!isSaved)h+=renderHero();
+  h+=`<div class="tools"><label class="search ${S.q?"has":""}" id="sbox">${ic("search")}<input id="q" type="text" placeholder="Search a city or place…" value="${esc(S.q)}" autocomplete="off" enterkeyhint="search"><span class="hint">EXPLORE</span><button class="x" data-clearq aria-label="Clear">${ic("x")}</button></label>
+    <label class="select">${ic("globe")}<select id="ccSel"><option value="all">Country</option>${USED_CC.map(c=>`<option value="${c}" ${S.cc===c?"selected":""}>${esc(COUNTRIES[c])}</option>`).join("")}</select>${ic("chev","chev")}</label></div>
+  <div class="chips"><button class="chip ${S.cat==="all"?"on":""}" data-cat="all">${ic("compass")}All places</button>
+    ${CAT_ORDER.map(c=>`<button class="chip ${S.cat===c?"on":""}" data-cat="${c}">${ic(CATS[c].icon)}${CATS[c].label}</button>`).join("")}</div>
+  <div class="sec-h"><h3>${isSaved?"Saved windows":S.q?`Results for “${esc(S.q)}”`:S.cc!=="all"?esc(COUNTRIES[S.cc]):"Find your next little escape"} <small>${list.length} place${list.length===1?"":"s"}</small></h3>
+    <div class="sortrow"><label class="groupby">Sort <select id="sortSel"><option value="featured" ${S.sort==="featured"?"selected":""}>Featured</option><option value="loved" ${S.sort==="loved"?"selected":""}>♥ Most loved</option><option value="az" ${S.sort==="az"?"selected":""}>A–Z</option><option value="night" ${S.sort==="night"?"selected":""}>Night views first</option></select></label><label class="groupby">Group <select id="grpSel"><option value="none" ${S.group==="none"?"selected":""}>None</option><option value="category" ${S.group==="category"?"selected":""}>Type</option><option value="country" ${S.group==="country"?"selected":""}>Country</option></select></label></div></div>`;
+  if(!list.length)h+=`<div class="empty"><b>${isSaved?"Nothing saved yet.":"No windows match that."}</b>${isSaved?"Tap the heart on any place to keep it here.":"Try “beach”, “neon”, “snow” or a city name."}</div>`;
+  else if(S.group==="category")CAT_ORDER.forEach(c=>{const l=list.filter(p=>p.cat===c);if(l.length)h+=`<div class="grp">${ic(CATS[c].icon)}<h4>${CATS[c].label}</h4><span>${l.length}</span><div class="line"></div></div><div class="grid">${l.map(card).join("")}</div>`;});
+  else if(S.group==="country")[...new Set(list.map(p=>p.cc))].sort((a,b)=>COUNTRIES[a].localeCompare(COUNTRIES[b])).forEach(cc=>{const l=list.filter(p=>p.cc===cc);h+=`<div class="grp"><h4>${esc(COUNTRIES[cc])}</h4><span>${l.length}</span><div class="line"></div></div><div class="grid">${l.map(card).join("")}</div>`;});
+  else h+=`<div class="grid">${list.map(card).join("")}</div>`;
+  h+=`<div class="foot"><span>Live streams belong to their operators — we only link to them. Destination photos are not live frames.</span><span><button data-credits>Photo credits & source policy</button> · <button data-rules>Community rules</button></span></div>`;
+  return h;
+}
+function renderSide(){
+  const n=c=>PLACES.filter(p=>c==="all"||p.cc===c).length;
+  $("#clist").innerHTML=`<button class="crow ${S.cc==="all"?"on":""}" data-cc="all">${ic("globe")}<span>All countries</span><span class="n">${USED_CC.length}</span></button>`+
+    USED_CC.map(c=>`<button class="crow ${S.cc===c?"on":""}" data-cc="${c}"><code>${c==="XS"?"··":c}</code>${esc(COUNTRIES[c])}<span class="n">${n(c)}</span></button>`).join("");
+  $("#savedN").textContent=saved.size;
+  document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("on",b.dataset.view===S.view));
+  const ot=$("#onlineTxt");if(ot)ot.textContent=SOC.online?`${SOC.online} traveler${SOC.online>1?"s":""} online`:`${PLACES.length} live windows open`;
+}
+function render(){
+  const f=document.activeElement&&document.activeElement.id==="q";const sel=f?document.activeElement.selectionStart:0;
+  $("#wrap").innerHTML=renderMain();renderSide();if($("#hero"))paintHero();
+  if(f){const q=$("#q");q.focus();try{q.setSelectionRange(sel,sel);}catch(e){}}
+}
+
+/* ===================== modal ===================== */
+function openPlace(id,fromHash){
+  const p=BY_ID[id];if(!p)return;S.open=id;S.tab=S.tab||"room";
+  renderModal();$("#modal").scrollTop=0;
+  $("#ovl").classList.add("open");$("#modal").classList.add("open");
+  if(!fromHash)try{location.hash="cam-"+id;}catch(e){}
+  if(SOC.room)SOC.room.presence({pid:id}).catch(()=>{});
+  joinChat(id);
+}
+function closePlace(fromHash){
+  S.open=null;leaveChat();$("#ovl").classList.remove("open");$("#modal").classList.remove("open");
+  if(SOC.room)SOC.room.presence({pid:null}).catch(()=>{});
+  if(!fromHash)try{location.hash="explore";}catch(e){}
+}
+function renderModal(){
+  const p=BY_ID[S.open];if(!p)return;const cr=CREDITS[p.id];
+  const host=HOST[p.id]||(p.official?"the official camera page":"YouTube");
+  $("#modal").innerHTML=`
+  <div class="m-img">${photo(p.id,p.name)}
+    <a class="play" href="${esc(watchUrl(p))}" target="_blank" rel="noopener noreferrer"><i>${ic("play")}</i>Watch live now</a>
+    <span class="chip-glass">Destination photo · not a live frame</span>
+    <button class="close" data-close aria-label="Close">${ic("x")}</button></div>
+  <div class="m-body">
+    <div class="m-left">
+      <div class="crumb"><code>${p.cc==="XS"?"":p.cc}</code>${esc(COUNTRIES[p.cc])} / ${esc(p.city)}</div>
+      <h2>${esc(p.name)}</h2>
+      <div class="pills"><span class="pill">${CATS[p.cat].label}</span><span class="pill" data-clock="${p.tz}" data-suffix=" local">${localTime(p.tz)} local</span>${p.busy?`<span class="pill warm">Busy spot</span>`:""}</div>
+      <p class="lead">${esc(p.line)} It's ${partOfDay(p.tz)} there right now.</p>
+      <div class="see">${p.see.map(s=>`<span>${esc(s)}</span>`).join("")}</div>
+      <div class="host"><div class="eyebrow">Your window is hosted by</div><h6>${esc(host)}</h6>
+        <p>${p.yt?"Opens the live stream directly on YouTube — on your phone, it opens in the YouTube app. Just press play, then come back to join the conversation.":"Opens the operator's official camera page in a new tab. Come back here to join the conversation."}</p>
+        <div class="row"><a class="btn dark" href="${esc(watchUrl(p))}" target="_blank" rel="noopener noreferrer">Open live source ${ic("arrow")}</a>
+        ${p.official&&p.yt?`<a class="btn line" href="${esc(p.official)}" target="_blank" rel="noopener noreferrer">Official page</a>`:""}</div>
+        <small>Stream status isn't monitored. Ads or the source site's terms may apply. <a href="${esc(ytSearch(p))}" target="_blank" rel="noopener noreferrer" style="text-decoration:underline">Stream ended? Find another</a></small></div>
+      <div class="acts"><button class="btn line favbtn" data-fav="${p.id}">${ic("heart")}${saved.has(p.id)?"Saved":"Save place"} <span class="lc2" data-lc="${p.id}">${likeCount(p.id)?"· "+likeCount(p.id)+" ♥":""}</span></button><button class="btn line" data-copy="${p.id}">${ic("link")}Copy place link</button></div>
+      <div class="credit">Photo: ${esc(p.name)}, ${esc(p.city)}. Not the current camera view.${cr?` By ${esc(cr[2]||"unknown")}, ${esc(cr[1])}, via Wikimedia Commons.`:""} <button data-credits>Photo credits & source policy</button></div>
+    </div>
+    <div class="m-right">
+      <div class="conv-h"><h3>${ic("chat")}The conversation</h3><span class="eyebrow">Place room</span></div>
+      <p class="conv-sub">A little company, wherever you are.</p>
+      <div class="seg"><button data-tab="room" class="${S.tab==="room"?"on":""}"><span class="live">●</span> Live room <span class="n" id="hereN"></span></button><button data-tab="notes" class="${S.tab==="notes"?"on":""}">Comments <span class="n" id="notesN">${commentCount(p.id)||""}</span></button></div>
+      <div class="me"><div class="av">${ic("compass")}</div><div><div class="eyebrow">You are exploring as</div><b>${esc(HANDLE)}</b></div><button data-rename>Change</button></div>
+      <div class="feed" id="feed"></div>
+      <div id="compose"></div>
+      <div class="rules">${ic("shield")}<span>Be kind. No personal details, links or harassment. Talk about the place, not the people on camera.</span></div>
+    </div>
+  </div>`;
+  refreshHere();renderFeed();renderComposer();
+}
+function renderFeed(stick){
+  const p=BY_ID[S.open],f=$("#feed");if(!p||!f)return;let h="";
+  if(S.tab==="notes"){
+    if(SOC.mode==="local")h+=`<div class="notice">This copy runs on its own, so comments are saved on this device only.</div>`;
+    else if(!SOC.canWrite)h+=`<div class="notice">You can read comments. To post, ask the owner for Contributor access.</div>`;
+    const list=commentsFor(p.id);
+    if(!list.length)h+=`<div class="e-state">${ic("chat")}<b>Leave the first comment.</b>Best time to watch? Something you spotted in ${esc(p.city)}?</div>`;
+    h+=list.map(c=>{const mine=c.uid===SOC.uid;return `<div class="msg">${av(c.h||"?")}<div style="flex:1;min-width:0"><div class="who">${esc(c.h||"Traveler")}${mine?` <span class="you">YOU</span>`:""}<small>${ago(c.ts)}</small></div><p>${esc(c.text)}</p><div class="ops">${!mine?`<button data-report="${esc(c.uid)}|${esc(c.id)}">Report</button>`:""}${mine||SOC.owner?`<button data-del="${esc(c.uid)}|${esc(c.id)}">Delete</button>`:""}</div></div></div>`;}).join("");
+  }else{
+    const log=(SOC.chatLog[p.id]||[]).filter(m=>!SOC.muted.has(m.by));
+    h+=`<div class="sys">${SOC.chatRoom?"You're in the live room · messages vanish when everyone leaves":(!SOC.room?"Live room works in the shared app — here messages only echo to you":SOC.chatErr?"The live room isn't available for your access level":"Joining the live room…")}</div>`;
+    if(!log.length)h+=`<div class="e-state">${ic("chat")}<b>Be the first to say hello.</b>What caught your eye in ${esc(p.city)}?</div>`;
+    h+=log.map((m,i)=>`<div class="msg">${av(m.h)}<div style="flex:1;min-width:0"><div class="who">${esc(m.h)}${m.mine?` <span class="you">YOU</span>`:""}<small>${ago(m.ts)}</small></div><p>${esc(m.t)}</p>${!m.mine?`<div class="ops"><button data-mute="${i}">Mute</button><button data-chatrep="${i}">Report</button></div>`:""}</div></div>`).join("");
+    h+=`<div class="rhint"></div><div class="reacts">${REACTS.map(e=>`<button data-react="${e}">${e}<span class="rc"></span></button>`).join("")}</div>`;
+  }
+  f.innerHTML=h;paintReacts();
+  if(stick){const m=$("#modal");m.scrollTop=m.scrollHeight;}
+}
+function renderComposer(){
+  const c=$("#compose");if(!c)return;
+  const dis=(S.tab==="notes"&&SOC.mode==="shared"&&!SOC.canWrite)||(S.tab==="room"&&!SOC.canChat);
+  c.innerHTML=`<div class="composer"><input id="msg" maxlength="400" placeholder="${S.tab==="room"?"Say hello to fellow travelers…":"Leave a comment about this place…"}" ${dis?"disabled":""}><button class="send" id="sendBtn" ${dis?"disabled":""} aria-label="Send">${ic("send")}</button></div>`;
+}
+function ago(ts){const s=(Date.now()-ts)/1e3;return s<60?"just now":s<3600?Math.floor(s/60)+"m ago":s<86400?Math.floor(s/3600)+"h ago":Math.floor(s/86400)+"d ago";}
+function refreshLikes(){
+  document.querySelectorAll("[data-fav]").forEach(b=>{const id=b.dataset.fav;if(b.classList.contains("heart"))b.classList.toggle("on",saved.has(id));else if(b.classList.contains("favbtn"))b.innerHTML=ic("heart")+(saved.has(id)?"Saved":"Save place")+` <span class="lc2" data-lc="${id}"></span>`;});
+  document.querySelectorAll("[data-lc]").forEach(el=>{const n=likeCount(el.dataset.lc);el.textContent=el.classList.contains("lc2")?(n?"· "+n+" ♥":""):(n||"");});
+  renderSide();if(S.view==="saved"&&!S.open)render();
+}
+function refreshCounts(){document.querySelectorAll("[data-meta]").forEach(el=>el.innerHTML=meta(el.dataset.meta));renderSide();}
+function refreshHere(){if(!S.open)return;const n=Math.max(SOC.here[S.open]||0,SOC.chatPeers||0);const e=$("#hereN");if(e)e.textContent=n?n+" here":"";}
+function refreshModal(){if(!S.open)return;const nn=$("#notesN");if(nn)nn.textContent=commentCount(S.open)||"";const m=$("#msg");const v=m?m.value:"",f=document.activeElement===m;renderFeed();renderComposer();const m2=$("#msg");if(m2){m2.value=v;if(f)m2.focus();}}
+function refresh(){refreshCounts();refreshModal();}
+
+/* sheets */
+function sheet(h){$("#sheet").innerHTML=h;$("#sheet").classList.add("open");$("#sheetBg").classList.add("open");}
+function closeSheet(){$("#sheet").classList.remove("open");$("#sheetBg").classList.remove("open");}
+let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2600);}
+const commonsUrl=f=>"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent(f.replace(/ /g,"_"));
+function creditsSheet(){
+  sheet(`<h3>Photo credits & source policy</h3>
+  <p>Destination photos come from <b>Wikimedia Commons</b> under free licenses (CC BY, CC BY-SA, CC0, public domain and similar) and are shown as illustrations, not live frames. Each photo is credited below with its author and license.</p>
+  <p>Live video is never hosted, recorded or re-broadcast here. “Watch live” links to the operator's own public stream on YouTube or their official site. Stream owners can ask the app owner to remove a link at any time.</p>
+  ${PLACES.map(p=>{const c=CREDITS[p.id];return c?`<div class="cred"><b>${esc(p.name)}</b> — “${esc(c[0])}” by ${esc(c[2]||"unknown")}, <a href="${commonsUrl(c[0])}" target="_blank" rel="noopener noreferrer">${esc(c[1])}</a></div>`:"";}).join("")}
+  <div style="margin-top:16px"><button class="btn dark" data-closesheet>Close</button></div>`);
+}
+function rulesSheet(){
+  sheet(`<h3>Community rules</h3><ul>
+  <li><b>Live room</b> is for people watching the same place right now. Messages aren't stored and vanish when everyone leaves.</li>
+  <li><b>Comments</b> stay on a place — tips, best times to watch, what you spotted.</li>
+  <li>Be kind. No harassment, hate or sexual content.</li>
+  <li>Talk about the place, not the people on camera. Never try to identify or track anyone.</li>
+  <li>Links, emails and phone numbers are blocked automatically.</li>
+  <li>Use Report on anything that breaks the rules — it's hidden for you immediately.</li>
+  <li>Your name here is anonymous. Comments store your nickname, text, time and an internal account ID so the owner can remove abuse.</li></ul>
+  <button class="btn dark" data-closesheet>Got it</button>`);
+}
+function meSheet(){
+  let rep="";
+  if(SOC.owner){const r=[];for(const [u,d] of SOC.reports)(d.items||[]).forEach(x=>r.push({...x,rep:u}));r.sort((a,b)=>b.ts-a.ts);
+    rep=`<h3 style="margin-top:18px">Moderation</h3>${r.length?r.slice(0,30).map(x=>`<div class="cred"><b>${esc(BY_ID[x.pid]?.name||x.pid)}</b> · ${esc(x.reason)}<br>“${esc(x.text)}” ${x.kind==="comment"&&x.uid?`<button class="btn line" style="height:30px;font-size:12px;margin-top:6px" data-moddel="${esc(x.uid)}|${esc(x.cid)}">Delete comment</button>`:""}</div>`).join(""):`<p>No reports.</p>`}`;}
+  sheet(`<h3>You</h3><p>You are exploring as <b>${esc(HANDLE)}</b>.</p><button class="opt" data-rename>Change my anonymous name</button><button class="opt" data-view="saved">Saved places (${saved.size})</button><button class="opt" data-rules>Community rules</button><button class="opt" data-credits>Photo credits & source policy</button>${rep}`);
+}
+function countrySheet(){
+  sheet(`<h3>Explore by country</h3><button class="opt" data-cc="all">🌍 All countries · ${PLACES.length}</button>${USED_CC.map(c=>`<button class="opt" data-cc="${c}">${esc(COUNTRIES[c])} <span style="float:right;color:var(--muted)">${PLACES.filter(p=>p.cc===c).length}</span></button>`).join("")}`);
+}
+function renameSheet(){sheet(`<h3>Your anonymous name</h3><p>Shown on your comments and messages. Don't use your real name.</p><input id="nameIn" maxlength="28" value="${esc(HANDLE)}"><div style="display:flex;gap:8px;margin-top:12px"><button class="btn line" style="flex:1" data-randname>${ic("shuffle")}Random</button><button class="btn dark" style="flex:1" data-savename>Save</button></div>`);}
+function reportSheet(kind,uid,cid,text){sheet(`<h3>Report this ${kind==="chat"?"message":"comment"}</h3><p>It'll be hidden for you right away and flagged for the owner.</p>${["Harassment or hate","Spam or ads","Sexual content","Personal info about someone","Other"].map(r=>`<button class="opt" data-reason="${r}">${r}</button>`).join("")}`);$("#sheet").dataset.rep=JSON.stringify({kind,uid,cid,text});}
+
+/* ===================== events ===================== */
+document.addEventListener("click",async e=>{
+  if(e.target.id==="sheetBg"){closeSheet();return;}
+  if(e.target.id==="ovl"){closePlace();return;}
+  const t=e.target.closest("button,a,[data-open]");if(!t)return;const d=t.dataset;
+  if(t.tagName==="A"&&t.getAttribute("href"))return;
+  if(d.fav){e.stopPropagation();const id=d.fav;saved.has(id)?saved.delete(id):saved.add(id);saveFavs();syncLike();toast(saved.has(id)?"Saved — you love this place ♥":"Removed from saved");
+    refreshLikes();renderSide();if(S.view==="saved"&&!S.open)render();return;}
+  if(d.open){openPlace(d.open);return;}
+  if("close" in d){closePlace();return;}
+  if(d.view){closeSheet();if(S.open)closePlace();S.view=d.view;$("#scroller").scrollTop=0;render();document.querySelectorAll("#mnav button").forEach(b=>b.classList.toggle("on",b.dataset.view===S.view));return;}
+  if(d.cat){S.cat=d.cat;render();return;}
+  if(d.cc){closeSheet();S.cc=d.cc;S.view="explore";render();document.querySelector(".tools")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
+  if(d.hero!==undefined){S.hero=+d.hero;paintHero();startHero();return;}
+  if("surprise" in d){const l=filtered();const p=(l.length?l:PLACES)[Math.random()*(l.length||PLACES.length)|0];openPlace(p.id);return;}
+  if("clearq" in d){e.preventDefault();S.q="";render();$("#q")?.focus();return;}
+  if(d.tab){S.tab=d.tab;document.querySelectorAll(".seg button").forEach(b=>b.classList.toggle("on",b.dataset.tab===S.tab));renderFeed(S.tab==="room");renderComposer();return;}
+  if(t.id==="sendBtn"){const m=$("#msg");const v=m.value;if(!v.trim())return;t.disabled=true;const ok=S.tab==="notes"?await postComment(S.open,v):await sendChat(S.open,v);const m2=$("#msg");if(ok&&m2)m2.value="";const b=$("#sendBtn");if(b)b.disabled=false;return;}
+  if(d.react){const pid=S.open;if(RX.mine[pid]){toast(RX.mine[pid]===d.react?"You already reacted here":"Only one reaction per place");return;}
+    RX.mine[pid]=d.react;syncReact();paintReacts();
+    if(SOC.chatRoom&&SOC.canChat)SOC.chatRoom.emit("react",{e:d.react}).catch(()=>floaty(d.react,true));else floaty(d.react,true);return;}
+  if(d.del){const [u,c]=d.del.split("|");delComment(u,c);return;}
+  if(d.moddel){const [u,c]=d.moddel.split("|");await delComment(u,c);closeSheet();return;}
+  if(d.report){const [u,c]=d.report.split("|");const it=(SOC.comments.get(u)?.items||[]).find(i=>i.id===c);reportSheet("comment",u,c,it?it.text:"");return;}
+  if(d.mute!==undefined||d.chatrep!==undefined){const log=(SOC.chatLog[S.open]||[]).filter(m=>!SOC.muted.has(m.by));const m=log[+(d.mute??d.chatrep)];if(!m)return;
+    if(d.mute!==undefined){SOC.muted.add(m.by);renderFeed();toast("Muted for this visit");}else reportSheet("chat",m.by,null,m.t);return;}
+  if(d.reason){const r=JSON.parse($("#sheet").dataset.rep||"{}");closeSheet();report(r.kind,S.open,r.uid,r.cid,r.text||"",d.reason);return;}
+  if("rename" in d){renameSheet();return;}
+  if("randname" in d){$("#nameIn").value=genHandle();return;}
+  if("savename" in d){const v=$("#nameIn").value.trim().replace(/[^\w\- ]/g,"").slice(0,28);if(v.length<2){toast("At least 2 characters");return;}HANDLE=v;try{localStorage.setItem("el_handle",v);}catch(e){}closeSheet();toast("Name updated");if(S.open)renderModal();return;}
+  if("credits" in d){creditsSheet();return;}
+  if("rules" in d){rulesSheet();return;}
+  if("closesheet" in d){closeSheet();return;}
+  if("me" in d){meSheet();return;}
+  if("mcountry" in d){countrySheet();return;}
+  if(d.copy){const url=((window.ELSEWHERE_CONFIG&&ELSEWHERE_CONFIG.siteUrl)||(/^https?:/.test(location.protocol)&&!/claudeusercontent|claude\.ai/.test(location.host)?location.origin+location.pathname:ARTIFACT_URL))+"#cam-"+d.copy;try{await navigator.clipboard.writeText(url);toast("Link copied");}catch(err){sheet(`<h3>Place link</h3><p>Copy this link:</p><input readonly value="${esc(url)}" onfocus="this.select()"><div style="margin-top:12px"><button class="btn dark" data-closesheet>Done</button></div>`);}return;}
+});
+let qt;
+document.addEventListener("input",e=>{
+  if(e.target.id==="q"){clearTimeout(qt);const v=e.target.value;$("#sbox")?.classList.toggle("has",!!v);qt=setTimeout(()=>{S.q=v;render();},180);}
+});
+document.addEventListener("change",e=>{
+  if(e.target.id==="ccSel"){S.cc=e.target.value;render();}
+  if(e.target.id==="grpSel"){S.group=e.target.value;render();}
+  if(e.target.id==="sortSel"){S.sort=e.target.value;render();if(S.sort==="loved")toast("Sorted by how many travelers saved each place");}
+});
+document.addEventListener("keydown",e=>{
+  if(e.target.id==="msg"&&e.key==="Enter"){e.preventDefault();$("#sendBtn")?.click();}
+  if(e.key==="Enter"&&e.target.dataset&&e.target.dataset.open&&e.target.classList.contains("card"))openPlace(e.target.dataset.open);
+  if(e.key==="Escape"){if($("#sheet").classList.contains("open"))closeSheet();else if(S.open)closePlace();}
+});
+function onHash(){const h=(location.hash||"").slice(1);if(h.startsWith("cam-")){const id=h.slice(4);if(id!==S.open&&BY_ID[id])openPlace(id,true);}else if(S.open)closePlace(true);}
+window.addEventListener("hashchange",onHash);
+setInterval(()=>{document.querySelectorAll("[data-clock]").forEach(el=>{el.textContent=localTime(el.dataset.clock)+(el.dataset.suffix||"");});},20000);
+
+render();startHero();onHash();initSocial();
+</script>
+</body>
+</html>
